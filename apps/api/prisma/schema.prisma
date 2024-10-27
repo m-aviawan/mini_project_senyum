@@ -10,12 +10,138 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Sample {
-  id        Int      @id @default(autoincrement())
-  name      String
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String   @unique
+  gender       Gender
+  birthDate    DateTime
+  idCardNumber String
+  referralCode String   @default(cuid())
+  role         Role     @default(customer)
 
-  @@map("samples") // if you want to use snake_case format
+  transactions       Transaction[]
+  points             Point[]
+  refferal_discounts RefferalDiscount[]
+  events             Event[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("users")
+}
+
+enum Role {
+  customer
+  eventOrganizer
+}
+
+enum Gender {
+  male
+  female
+}
+
+model Point {
+  id          String   @id @default(cuid())
+  points      Int
+  expiredDate DateTime
+
+  transactions Transaction[]
+
+  userId String
+  users  User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("points")
+}
+
+model RefferalDiscount {
+  id                   String   @id @default(cuid())
+  discount             Int
+  discountAvailability Boolean  @default(true)
+  expiredDate          DateTime
+
+  transactions Transaction[]
+
+  userId String
+  users  User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("refferal_discounts")
+}
+
+model Transaction {
+  id          String @id @default(cuid())
+  total_price Int    @default(0)
+
+  userId             String
+  users              User             @relation(fields: [userId], references: [id])
+  ticketId           String
+  tickets            Ticket           @relation(fields: [ticketId], references: [id])
+  pointId            String
+  points             Point            @relation(fields: [pointId], references: [id])
+  refferalDiscountId String
+  refferalDiscounts  RefferalDiscount @relation(fields: [refferalDiscountId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("transactions")
+}
+
+model Ticket {
+  id                String   @id @default(cuid())
+  ticketName        String
+  ticketType        String
+  price             Int
+  status            String
+  availableTicket   Int
+  discount          Int
+  discountsAvailabe Int
+  discountsDueDate  DateTime
+
+  transactions Transaction[]
+
+  eventsId String
+  events   Event  @relation(fields: [eventsId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("Tickets")
+}
+
+model Event {
+  id            String @id @default(cuid())
+  eventName     String
+  eventCategory String
+  location      String
+  description   String
+  imageUrl      String
+  eventType     String
+  eventStatus   String
+  startEvent    String
+  endEvent      String
+  artist        String
+
+  tickets Ticket[]
+
+  userId String
+  users  User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("Events")
 }
