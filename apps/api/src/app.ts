@@ -9,7 +9,7 @@ import express, {
 } from 'express';
 import cors from 'cors';
 import { PORT } from './config';
-import { SampleRouter } from './routers/sample.router';
+import { SampleRouter } from './routers/sampleRouter';
 
 export default class App {
   private app: Express;

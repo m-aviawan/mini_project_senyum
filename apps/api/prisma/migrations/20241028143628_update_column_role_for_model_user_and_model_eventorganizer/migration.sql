@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `event_organizers` ADD COLUMN `role` VARCHAR(191) NOT NULL DEFAULT 'EO';
+
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `role` VARCHAR(191) NOT NULL DEFAULT 'CUSTOMER';

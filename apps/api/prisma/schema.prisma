@@ -11,20 +11,26 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  firstName    String
-  lastName     String
-  email        String   @unique
-  gender       Gender
-  birthDate    DateTime
-  idCardNumber String
-  referralCode String   @default(cuid())
-  role         Role     @default(customer)
+  id                String  @id @default(cuid())
+  username          String
+  email             String  @unique
+  password          String
+  referralCode      String  @unique
+  isVerified        Boolean @default(false)
+  profilePictureUrl String?
+  profilePictureDirectory String?
+  phoneNumber       String?
+  birthDate         DateTime? @db.Date
+  address           String?  @db.LongText
+  gender            Gender?
+  role              String  @default("CUSTOMER")
+  totalPoint        Int     @default(0)
+  isGoogleRegistered Boolean @default(false)
 
-  transactions       Transaction[]
-  points             Point[]
-  refferal_discounts RefferalDiscount[]
-  events             Event[]
+  referralPoints    ReferralPoint[]
+  referralDiscounts ReferralDiscount[]
+  transactions      Transaction[]
+  reviews           Review[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -33,22 +39,36 @@ model User {
   @@map("users")
 }
 
-enum Role {
-  customer
-  eventOrganizer
-}
-
 enum Gender {
-  male
-  female
+  MALE
+  FEMALE
 }
 
-model Point {
-  id          String   @id @default(cuid())
-  points      Int
-  expiredDate DateTime
+model EventOrganizer {
+  id          String  @id @default(cuid())
+  email       String  @unique
+  password    String
+  companyName String
+  address     String
+  phoneNumber String
+  profilePictureUrl String?
+  profilePictureDirectory String?
+  isVerified  Boolean @default(false)
+  pic         String
+  role        String  @default("EO")
+  events      Event[]
 
-  transactions Transaction[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("event_organizers")
+}
+
+model ReferralPoint {
+  id     String   @id @default(cuid())
+  point  Int
+  expiry DateTime
 
   userId String
   users  User   @relation(fields: [userId], references: [id])
@@ -57,39 +77,114 @@ model Point {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("points")
+  @@map("referral_points")
 }
 
-model RefferalDiscount {
-  id                   String   @id @default(cuid())
-  discount             Int
-  discountAvailability Boolean  @default(true)
-  expiredDate          DateTime
-
-  transactions Transaction[]
-
-  userId String
-  users  User   @relation(fields: [userId], references: [id])
+model ReferralDiscount {
+  id       String   @id @default(cuid())
+  percentDiscount Int
+  expiry   DateTime
+  isUsed   Boolean  @default(false)
+  userId   String
+  users    User     @relation(fields: [userId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("refferal_discounts")
+  @@map("referral_discounts")
+}
+
+model Event {
+  id           String    @id @default(cuid())
+  name         String
+  type         EventType
+  locationName String
+  location     String
+  url          String?
+  description  String?
+  startDate    DateTime
+  endDate      DateTime
+  isPaid       Boolean   @default(false)
+  capacity     Int
+
+  categoryId     Int
+  categories     Category       @relation(fields: [categoryId], references: [id])
+  eoId           String
+  eventOrganizer EventOrganizer @relation(fields: [eoId], references: [id])
+
+  tickets      EventTicket[]
+  images       EventImage[]
+  reviews      Review[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("events")
+}
+
+model EventTicket {
+  id             String    @id @default(cuid())
+  name           String
+  price          Int
+  available      Int
+  bookSeat       Int
+  totalSeat      Int
+  discount       Int       @default(0)
+  discountStart  DateTime?
+  discountExpiry DateTime?
+  startDate      DateTime
+  endDate        DateTime
+
+  transaction_details TransactionDetail[]
+  eventId             String
+  events              Event               @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("event_tickets")
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  events Event[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("categories")
+}
+
+model EventImage {
+  id  Int    @id @default(autoincrement())
+  url String
+  directory String
+
+  eventId String
+  events  Event  @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("event_images")
 }
 
 model Transaction {
-  id          String @id @default(cuid())
-  total_price Int    @default(0)
+  id         String @id @default(cuid())
+  totalPrice Int @default(0)
+  status     Status @default(WAITING_FOR_PAYMENT)
 
-  userId             String
-  users              User             @relation(fields: [userId], references: [id])
-  ticketId           String
-  tickets            Ticket           @relation(fields: [ticketId], references: [id])
-  pointId            String
-  points             Point            @relation(fields: [pointId], references: [id])
-  refferalDiscountId String
-  refferalDiscounts  RefferalDiscount @relation(fields: [refferalDiscountId], references: [id])
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  details TransactionDetail[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -98,50 +193,61 @@ model Transaction {
   @@map("transactions")
 }
 
-model Ticket {
-  id                String   @id @default(cuid())
-  ticketName        String
-  ticketType        String
-  price             Int
-  status            String
-  availableTicket   Int
-  discount          Int
-  discountsAvailabe Int
-  discountsDueDate  DateTime
+model TransactionDetail {
+  id    Int @id @default(autoincrement())
+  price Int
+  qty   Int
 
-  transactions Transaction[]
-
-  eventsId String
-  events   Event  @relation(fields: [eventsId], references: [id])
+  transactionId String
+  transactions  Transaction @relation(fields: [transactionId], references: [id])
+  ticketId      String
+  tickets       EventTicket @relation(fields: [ticketId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("Tickets")
+  @@map("transaction_details")
 }
 
-model Event {
-  id            String @id @default(cuid())
-  eventName     String
-  eventCategory String
-  location      String
-  description   String
-  imageUrl      String
-  eventType     String
-  eventStatus   String
-  startEvent    String
-  endEvent      String
-  artist        String
+// model TransactionStatus {
+//   id            String      @id @default(cuid())
+//   status        Status      @default(WAITING_FOR_PAYMENT)
+//   transactionId String
+//   transactions  Transaction @relation(fields: [transactionId], references: [id])
 
-  tickets Ticket[]
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime  @updatedAt
+//   deletedAt DateTime?
 
-  userId String
-  users  User   @relation(fields: [userId], references: [id])
+//   @@map("transactions_status")
+// }
+
+model Review {
+  comments String?
+  rating   Int
+  feedback String?
+
+  userId  String
+  users   User   @relation(fields: [userId], references: [id])
+  eventId String
+  events  Event  @relation(fields: [eventId], references: [id])
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@map("Events")
+  @@id([userId, eventId])
+  @@map("reviews")
+}
+
+enum EventType {
+  ONLINE
+  OFFLINE
+}
+
+enum Status {
+  WAITING_FOR_PAYMENT
+  PAID
+  CANCELLED
 }
