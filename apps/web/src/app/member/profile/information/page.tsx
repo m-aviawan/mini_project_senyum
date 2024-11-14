@@ -19,20 +19,24 @@ import { Input } from '@/components/ui/input'
 import { useMutation, useQuery } from "@tanstack/react-query"
 import instance from "@/util/axiosInstance"
 import { updateProfileUserValidationSchema } from "@/features/member/profile/information/updateProfileUserValidationSchema"
+import authStore from "@/zustand/authStore"
 
 const MemberProfileInformationPage = () => {
-  
+  const token = authStore(state => state.token)
   const [ dataValues, setDataValues ] = useState<any>({})
-  const { data: dataProfile } = useQuery({
+  const { data: dataProfile, isError, error } = useQuery({
     queryKey: ['getProfileData'],
     queryFn: async() => {
       let res = await instance.get('/user')
       const birthDate = res?.data?.data?.birthDate
+      console.log(res.data.data)
       setDate(new Date(birthDate))
       return res.data.data
     }
   })
   
+  
+
   const [date, setDate] = useState<Date>()
   interface IValues {
     username: string,
@@ -54,11 +58,21 @@ const MemberProfileInformationPage = () => {
     },
     onSuccess: (res) => {
       toast.success('Update profile success')
+      console.log(res)
     },
     onError: (err) => {
+      console.log(err)
       toast.error('Update profile failed!')
     },
   })
+
+  if(dataProfile === undefined) {
+    return(
+      <main className='flex flex-col gap-1 h-screen w-full items-center justify-center'>
+        <span className="loading loading-bars loading-lg"></span>
+      </main>
+    )
+  }
 
   return (
     <main className='flex flex-col gap-10'>
@@ -71,7 +85,7 @@ const MemberProfileInformationPage = () => {
         username: dataProfile?.username || '',
         phoneNumber: dataProfile?.phoneNumber || '',
         address: dataProfile?.address || '',
-        birthDate: dataProfile?.birthDate.split('T')[0] || '',
+        birthDate: dataProfile?.birthDate?.split('T')[0] || '',
         gender: dataProfile?.gender || ''
       }}
       validationSchema={updateProfileUserValidationSchema}
@@ -97,19 +111,19 @@ const MemberProfileInformationPage = () => {
               <section  className='grid grid-cols-2 gap-10'>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Email</h1>
-                  <Input defaultValue={dataProfile?.email} name='email' type="email" disabled/>
+                  <Field as="Input" name='email' type="email" disabled/>
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Name<span className="text-red-600 ml-2">*</span></h1>
-                  <Input defaultValue={dataProfile?.username} type="text" name='username' onChange={(e) => setFieldValue('username', e.target.value)}/>
+                  <Field as="Input" type="text" name='username' />
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Phone Number<span className="text-red-600 ml-2">*</span></h1>
-                  <Input defaultValue={dataProfile?.phoneNumber} type="text" name='phoneNumber' onChange={(e) => setFieldValue('phoneNumber', e.target.value)}/>
+                  <Field as="Input" type="text" name='phoneNumber' />
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Address</h1>
-                  <Input defaultValue={dataProfile?.address} type="text" name='address' onChange={(e) => setFieldValue('address', e.target.value)}/>
+                  <Field as="Input" type="text" name='address' />
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Birth Date</h1>
@@ -138,7 +152,7 @@ const MemberProfileInformationPage = () => {
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Gender</h1>
-                  <select defaultValue={dataProfile?.gender} name='gender' className="select select-bordered w-full" onChange={(e) => setFieldValue('gender', e.target.value)}>
+                  <select name='gender' className="select select-bordered w-full" onChange={(e) => setFieldValue('gender', e.target.value)}>
                     <option disabled selected={!dataProfile?.gender}>Select a gender</option>
                     <option value='MALE'>Male</option>
                     <option value='FEMALE'>Female</option>

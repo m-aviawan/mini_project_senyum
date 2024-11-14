@@ -1,82 +1,107 @@
 import prisma from "@/connection/prisma"
+import { cloudinaryUpload } from "@/utils/cloudinary"
 import { addWeeks, isAfter, isBefore } from "date-fns"
 import { NextFunction, Request, Response } from "express"
 import { Multer } from "multer"
 import { boolean } from "yup"
 
-// export const createEvent = async(req: Request, res: Response, next: NextFunction) => {
-//     const { 
-//         id, name, type, locationName,
-//         location, url = null, description = null, startDate,
-//         endDate, isPaid = false, categoryId, tickets
-//     } = req.body
+export const createEvent = async(req: Request, res: Response, next: NextFunction) => {
+    const { 
+        id, name, type, locationName,
+        location, url = null, description = null, startDate,
+        endDate, isPaid = false, categoryId, tickets
+    } = req.body
 
-//     let eventImages;
-//     if(!Array.isArray(req?.files) && !req?.files?.images?.length) {
-//         throw { msg: 'File not found!' }
-//     } else {
-//         eventImages = req.files 
-//     } 
+    let files 
+    const imagesUploaded: string[] = []
+    if(req.files) {
+        files = Array.isArray(req.files) ?
+        req.files : req.files['images']
 
-//     const capacityArr: number[] = tickets.map((item: any) => item.available)
-//     const capacity: number = capacityArr.reduce((acc: number, curr: number) => acc + curr)
-
-//     const isDateValid = isAfter(new Date(startDate), new Date(endDate))
-
-//     let newEvent;
-    
-//     if(isDateValid) {
-//         newEvent = await prisma.event.create({
-//             data: { 
-//                 eoId: id, name, type,
-//                 location, locationName, url,
-//                 description, startDate, endDate,
-//                 isPaid, categoryId, capacity
-//             }
-//         })
-//     } else {
-//         throw { err: 'Start Date must before End Date!' }
-//     }
-
-//     const addEventTicket = tickets.map((item: any) => {
-//         if(item.discount && item.discount != 0) {
-//             return {
-//                 name: item.name,
-//                 price: item.price,
-//                 available: item.totalSeat,
-//                 totalSeat: item.toalSeat,
-//                 bookSeat: 0,
-//                 discount: item.discount,
-//                 discountStart: item.discountStart,
-//                 discountExpiry: item.discountExpiry,
-//                 startDate: item.startDate,
-//                 endDate: item.endDate
-//             }
-//         }
-//         return {
-//             name: item.name,
-//             price: item.price,
-//             available: item.totalSeat,
-//             totalSeat: item.toalSeat,
-//             bookSeat: 0,
-//             startDate: item.startDate,
-//             endDate: item.endDate
-//         }
         
-//     })
+        console.log('>>>>>>>>>')
+        console.log(files)
+        for (let item of files) {
+            const result: any = await cloudinaryUpload(item?.buffer)
+            console.log('result')
+            console.log(result)
+            const res: string = result?.res!
+            imagesUploaded.push(res)
+        }
+    }
+    
+    // const capacityArr: number[] = tickets.map((item: any) => item.available)
+    // const capacity: number = capacityArr.reduce((acc: number, curr: number) => acc + curr)
 
-//     await prisma.eventTicket.createMany({
-//         data: addEventTicket
-//     })
+    // const isDateValid = isAfter(new Date(startDate), new Date(endDate))
 
-//     const addEventImage = eventImages?.images.map((item: any) => {
-//         return { url: item.filename, directory: item.destination, eventId: newEvent.id}
-//     })
+    // let newEvent;
+    
+    // if(isDateValid) {
+        // newEvent = await prisma.event.create({
+        //     data: { 
+        //         eoId: id, 
+        //         name, 
+        //         type,
+        //         location, 
+        //         locationName, 
+        //         url,
+        //         description, 
+        //         startDate, 
+        //         endDate,
+        //         isPaid, 
+        //         categoryId, 
+        //         capacity
+        //     }
+        // })
+    // } else {
+    //     throw { err: 'Start Date must before End Date!' }
+    // }
+    
+        const createdImages = imagesUploaded?.map((item) => {
+            console.log(item)
+            return { 
+                url: item,
+                // eventId: newEvent?.id
+             }
+        })
+    
+        console.log(createdImages)
+    // const addEventTicket = tickets.map((item: any) => {
+    //     if(item.discount && item.discount != 0) {
+    //         return {
+    //             name: item.name,
+    //             price: item.price,
+    //             available: item.totalSeat,
+    //             totalSeat: item.toalSeat,
+    //             bookSeat: 0,
+    //             discount: item.discount,
+    //             discountStart: item.discountStart,
+    //             discountExpiry: item.discountExpiry,
+    //             startDate: item.startDate,
+    //             endDate: item.endDate
+    //         }
+    //     }
+    //     return {
+    //         name: item.name,
+    //         price: item.price,
+    //         available: item.totalSeat,
+    //         totalSeat: item.toalSeat,
+    //         bookSeat: 0,
+    //         startDate: item.startDate,
+    //         endDate: item.endDate
+    //     }
+        
+    // })
 
-//     await prisma.eventImage.createMany({
-//         data: addEventImage
-//     })
-// }
+    // await prisma.eventTicket.createMany({
+    //     data: addEventTicket
+    // })
+
+    // await prisma.eventImage.createMany({
+    //     data: createdImages!
+    // })
+}
 
 export const updateEvent = async(req: Request, res: Response, next: NextFunction) => {
     try {
@@ -176,9 +201,9 @@ export const getEventDetail = async(req: Request, res: Response, next: NextFunct
             id: eventDetail?.eoId
         }
     }) 
-
+ 
     const eventImagesPath: string[] | undefined = eventDetail?.images?.map((item) => {
-        return `${item.directory}/${item.url}`
+        return item.url
     })
 
     let eventTickets: any[] | undefined = []

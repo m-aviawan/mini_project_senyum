@@ -5,6 +5,7 @@ export const tokenValidation = async(req: Request, res: Response, next: NextFunc
     try {
         const { authorization } = req.headers
         if(!authorization) throw { msg: 'Token is missing!', status: 400 }
+        console.log(authorization)
         const token = authorization?.split(' ')[1]
         const decodedToken: any = await decodeToken(token)
         

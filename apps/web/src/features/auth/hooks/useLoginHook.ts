@@ -4,22 +4,39 @@ import { AxiosError } from 'axios'
 import React from 'react'
 import toast from 'react-hot-toast'
 import useLoginApi from '../api/useLoginApi'
+import authStore from '@/zustand/authStore'
+import { useRouter } from 'next/navigation'
 
-const useLoginHook = () => {
+const useLoginHook = (role: string, endPoint: string) => {
+  const router = useRouter()
+  const setAuth = authStore(state => state.setAuth)
+
   const onSuccess = (res: any) => {
-    toast.success('Login success!')
-  }
+    setAuth({ 
+      role: res.data?.role,
+      username: res.data?.username,
+      token: res.data?.token,
+      isVerified: res.data?.isVerified,
+      isGoogleRegistered: res.data?.isGoogleRegistered,
+    })
+    setTimeout(() => {
+      router.push('/')
+      toast.success(res.message)
+    }, 500)
+    }
 
-  const onError = (err: AxiosError) => {
-    toast.error('Login failed!')
+  const onError = (err: any) => {
+    toast.error(err?.response?.data?.message)
   }
 
   const {
-    mutateLogin
-  } = useLoginApi( onSuccess, onError )
+    mutateLogin,
+    isPendingMutateLogin
+  } = useLoginApi({onSuccess, onError}, role, endPoint)
   
     return {
-        mutateLogin
+        mutateLogin,
+        isPendingMutateLogin
     }
 }
 

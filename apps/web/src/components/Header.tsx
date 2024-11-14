@@ -15,6 +15,7 @@ import { useDebounce, useDebouncedCallback } from "use-debounce";
 import authStore from "@/zustand/authStore";
 import { useState } from "react";
 import AlertDialogLogOut from "./AlertDialogLogOut";
+import { useRouter } from "next/navigation";
 
 
 const Header = () => {
@@ -22,7 +23,7 @@ const Header = () => {
   const setLogOut = authStore(state => state.setLogOut)
   const role = authStore(state => state.role)
   const [logOutConfirmation, setLogOutConfirmation] = useState(false)
-  
+  const router = useRouter()
 //nyimpen data diglobal state
   const {mutate: mutateSearch} = useMutation({
     mutationFn: async(values: string) => {

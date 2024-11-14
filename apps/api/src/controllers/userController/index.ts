@@ -49,19 +49,35 @@ export const updateUser = async(req: Request, res: Response, next: NextFunction)
     try {
         const { username, phoneNumber, address, birthDate, gender, id, role } = req.body
         console.log(req.body)
+        let updatedUser
         if(role !== 'CUSTOMER') throw { msg: 'role invalid!', status: 406 }
-        const updatedUser = await prisma.user.update({
-            where: {
-                id
-            },
-            data: {
-                username,
-                phoneNumber,
-                address,
-                birthDate: new Date(birthDate),
-                gender
-            }
-        })
+        if(birthDate) {
+            updatedUser = await prisma.user.update({
+                where: {
+                    id
+                },
+                data: {
+                    username,
+                    phoneNumber,
+                    address,
+                    birthDate: new Date(birthDate),
+                    gender
+                }
+            })
+        } else {
+            updatedUser = await prisma.user.update({
+                where: {
+                    id
+                },
+                data: {
+                    username,
+                    phoneNumber,
+                    address,
+                    gender
+                }
+            })
+
+        }
         console.log(updatedUser)
         console.log('12345')
         res.status(200).json({

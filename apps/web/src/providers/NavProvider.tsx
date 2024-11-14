@@ -14,22 +14,16 @@ interface INavProviderProps {
 const NavProvider = ({children}: INavProviderProps) => {
     const pathname = usePathname()
     
-    if(pathname === '/auth' || 
-        pathname === '/auth/register' || 
-        pathname === '/auth/event-organizer/register' || 
-        pathname === '/auth/event-organizer' ||
-        pathname === '/not-found'
-    
-    ) {
+    if(pathname.includes('auth')) {
         return (
-            <main className='min-h-[screen]'>
+            <main>
                 {children}
             </main>
         )
     }
     
     return (
-    <main className='relative flex flex-col bg-white '>
+    <main className='relative flex flex-col bg-white h-screen'>
         
         <figure className="fixed top-0 left-0 h-screen w-full overflow-hidden flex items-center justify-center">
             <Image
