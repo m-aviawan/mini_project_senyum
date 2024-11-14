@@ -3,7 +3,531 @@ const { PrismaClient, Gender, EventType, Status } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+const dataEvent = [
+  {
+    name: 'Rock Concert',
+      type: EventType.OFFLINE,
+      locationName: 'Stadium A',
+      location: '123 Stadium St, City, USA',
+      startDate: new Date('2024-12-01T18:00:00'),
+      endDate: new Date('2024-12-01T22:00:00'),
+      capacity: 1000,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsr0002mh0zg4zewila',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0003mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    {
+      name: '',
+      type: EventType.ONLINE,
+      locationName: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      capacity: 1,
+      categoryId: 1,
+      eoId: 'cm3fbchsu0006mh0zkltm4zn5',
+    },
+    
+  
+]
+
+const dataEo = [
+  {
+    id: 'cm3fbchsr0002mh0zg4zewila',
+    email: 'company1@example.com',
+    password: 'password123',
+    companyName: 'EventCorp',
+    address: '123 Business Rd, City, USA',
+    phoneNumber: '123-555-1234',
+    profilePictureUrl: null,
+    profilePictureDirectory: null,
+    isVerified: null,
+    pic: 'eventpic1.png',
+    role: 'EO',
+    createdAt: '2024-11-13 03:20:08.476',
+    updatedAt: '2024-11-13 03:20:08.476',
+    deletedAt: null,
+  },
+  {
+    id: 'cm3fbchsu0003mh0zkltm4zn5',
+    email: 'company2@example.com',
+    password: 'password123',
+    companyName: 'PartyPlanners',
+    address: '456 Event Blvd, City, USA',
+    phoneNumber: '123-555-5678',
+    profilePictureUrl: null,
+    profilePictureDirectory: null,
+    isVerified: null,
+    pic: 'eventpic2.png',
+    role: 'EO',
+    createdAt: '2024-11-13 03:20:08.478',
+    updatedAt: '2024-11-13 03:20:08.478',
+    deletedAt: null,
+  },
+  {
+    id: 'cm3fbchsu0006mh0zkltm4zn5',
+    email: 'hafizganteng@gmail.com',
+    password: 'hafizganteng',
+    companyName: 'Ganteng',
+    address: 'Jln Ganteng 123',
+    phoneNumber: '123-666-8888',
+    profilePictureUrl: null,
+    profilePictureDirectory: null,
+    isVerified: null,
+    pic: 'eventpic2.png',
+    role: 'EO',
+    createdAt: '2024-11-13 03:20:08.478',
+    updatedAt: '2024-11-13 03:20:08.478',
+    deletedAt: null,
+  }
+]
+
+const eventImage = [
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+  {
+    url: '',
+    directory: '',
+  },
+]
+
 async function main() {
+  dataEo.forEach(async(item, index)=>{
+    const dataEo = await prisma.eventOrganizer.create({
+      data: item,
+    })
+    dataEvent[index].forEach(async(itm,idx)=>{
+      const dataEvent = await prisma.event.create ({
+        data: {...itm, eoId: dataEo?.id}
+      })
+      eventImage[idx].forEach(async(items)=>{
+        await prisma.eventImage.create ({
+          data: {...items, eventId:dataEvent?.id}
+        })
+      })
+    })
+  })
   // Create Users
   const user1 = await prisma.user.create({
     data: {
@@ -41,7 +565,7 @@ async function main() {
   const eo1 = await prisma.eventOrganizer.create({
     data: {
       email: 'company1@example.com',
-      password: 'password123',
+      password:'password123',
       companyName: 'EventCorp',
       address: '123 Business Rd, City, USA',
       phoneNumber: '123-555-1234',
@@ -71,34 +595,11 @@ async function main() {
     data: { name: 'Art' },
   });
 
-  // Create Events
-  const event1 = await prisma.event.create({
-    data: {
-      name: 'Rock Concert',
-      type: EventType.OFFLINE,
-      locationName: 'Stadium A',
-      location: '123 Stadium St, City, USA',
-      startDate: new Date('2024-12-01T18:00:00'),
-      endDate: new Date('2024-12-01T22:00:00'),
-      capacity: 1000,
-      categoryId: category1.id,
-      eoId: eo1.id,
-    },
-  });
+  const event = await prisma.event.createMany({
+    data: dataEvent
+  })
 
-  const event2 = await prisma.event.create({
-    data: {
-      name: 'Art Exhibition',
-      type: EventType.ONLINE,
-      locationName: 'Gallery B',
-      location: 'Online',
-      startDate: new Date('2024-12-05T10:00:00'),
-      endDate: new Date('2024-12-05T18:00:00'),
-      capacity: 500,
-      categoryId: category2.id,
-      eoId: eo2.id,
-    },
-  });
+  // Create Events
 
   // Create Tickets for Events
   const ticket1 = await prisma.eventTicket.create({

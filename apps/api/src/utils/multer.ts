@@ -23,3 +23,4 @@ const fileFilter = (req: Request, file: Express.Multer.File, callback: FileFilte
 }
 
 export const uploadMulter = multer({storage, fileFilter, limits: { fieldSize: 2000000 }})
+

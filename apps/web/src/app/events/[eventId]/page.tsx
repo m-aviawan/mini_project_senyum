@@ -175,16 +175,16 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
       </main>
     )
   }
-  if(isErrorEventDetails || isErrorReviewByEvent) {
-    return (
-      <main>
-        <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
-          <h1 className='text-3xl font-bold'>Getting data failed!</h1>
-          <p className='text-base font-light'>Please refresh page</p>
-        </section>
-      </main>
-    )
-  }
+//   if(isErrorEventDetails || isErrorReviewByEvent) {
+//     return (
+//       <main>
+//         <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
+//           <h1 className='text-3xl font-bold'>Getting data failed!</h1>
+//           <p className='text-base font-light'>Please refresh page</p>
+//         </section>
+//       </main>
+//     )
+//   }
 
 
   return (
@@ -360,7 +360,7 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
             <h1 className='text-3xl font-bold flex items-center gap-2'>Ratings and Reviews <MdOutlineStar className='text-yellow-400'/></h1>
             <section className='flex flex-col gap-10 drop-shadow-lg border border-gray-100 py-5 px-10 rounded-xl bg-white'>
                 {
-                    dataReviewByEvent.map((item: any, index: number) => {
+                    dataReviewByEvent?.map((item: any, index: number) => {
                         return (
                         <div key={index} className='text-sm flex flex-col gap-5'>
                             <div className='flex items-end justify-between'>

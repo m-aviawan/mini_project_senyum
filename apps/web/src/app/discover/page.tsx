@@ -29,16 +29,16 @@ const DiscoverPage = () => {
       </main>
     )
   }
-  if(isErrorEvents) {
-    return (
-      <main>
-        <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
-          <h1 className='text-3xl font-bold'>Getting data failed!</h1>
-          <p className='text-base font-light'>Please refresh page</p>
-        </section>
-      </main>
-    )
-  }
+  // if(isErrorEvents) {
+  //   return (
+  //     <main>
+  //       <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
+  //         <h1 className='text-3xl font-bold'>Getting data failed!</h1>
+  //         <p className='text-base font-light'>Please refresh page</p>
+  //       </section>
+  //     </main>
+  //   )
+  // }
 
 
   return (
@@ -108,7 +108,7 @@ const DiscoverPage = () => {
       </aside>
       <section className='grid grid-cols-4 gap-2'>
         {
-          dataEvents!.map((item: any) => {
+          dataEvents?.map((item: any) => {
             const startDate = new Date(item.startDate).toDateString().split(' ')
             const [ dayStart, monthStart, dateStart, yearStart ] = startDate
             const fixedStartDate = `${dateStart} ${monthStart} ${yearStart}`

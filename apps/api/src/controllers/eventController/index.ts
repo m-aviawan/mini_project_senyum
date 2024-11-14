@@ -3,80 +3,96 @@ import { addWeeks, isAfter, isBefore } from "date-fns"
 import { NextFunction, Request, Response } from "express"
 import { Multer } from "multer"
 import { boolean } from "yup"
+import {v2 as cloudinary, cloudinaryUpload} from 'cloudinary'
 
-// export const createEvent = async(req: Request, res: Response, next: NextFunction) => {
-//     const { 
-//         id, name, type, locationName,
-//         location, url = null, description = null, startDate,
-//         endDate, isPaid = false, categoryId, tickets
-//     } = req.body
+export const createEvent = async(req: Request, res: Response, next: NextFunction) => {
+    const { 
+        id, name, type, locationName,
+        location, url = null, description = null, startDate,
+        endDate, isPaid = false, categoryId, tickets
+    } = req.body
 
-//     let eventImages;
-//     if(!Array.isArray(req?.files) && !req?.files?.images?.length) {
-//         throw { msg: 'File not found!' }
-//     } else {
-//         eventImages = req.files 
-//     } 
+    let eventImages;
+    if(!Array.isArray(req?.files) && !req?.files?.images?.length) {
+        throw { msg: 'File not found!' }
+    } else {
+        eventImages = req.files 
+    } 
 
-//     const capacityArr: number[] = tickets.map((item: any) => item.available)
-//     const capacity: number = capacityArr.reduce((acc: number, curr: number) => acc + curr)
+    if (req.files) {
+        files = Array.isArray(req.files)
+        ? req.files
+        : req.files['images']
 
-//     const isDateValid = isAfter(new Date(startDate), new Date(endDate))
+        console.log(req.files)
 
-//     let newEvent;
+        const imagesUploaded = []
+        for (const image of files!){
+            const result: any = await cloudinaryUpload(image.buffer);
+            console.log(result)
+            imagesUploaded.push(result.res!)
+        }
+    }
+
+    const capacityArr: number[] = tickets.map((item: any) => item.available)
+    const capacity: number = capacityArr.reduce((acc: number, curr: number) => acc + curr)
+
+    const isDateValid = isAfter(new Date(startDate), new Date(endDate))
+
+    let newEvent;
     
-//     if(isDateValid) {
-//         newEvent = await prisma.event.create({
-//             data: { 
-//                 eoId: id, name, type,
-//                 location, locationName, url,
-//                 description, startDate, endDate,
-//                 isPaid, categoryId, capacity
-//             }
-//         })
-//     } else {
-//         throw { err: 'Start Date must before End Date!' }
-//     }
+    if(isDateValid) {
+        newEvent = await prisma.event.create({
+            data: { 
+                eoId: id, name, type,
+                location, locationName, url,
+                description, startDate, endDate,
+                isPaid, categoryId, capacity
+            }
+        })
+    } else {
+        throw { err: 'Start Date must before End Date!' }
+    }
 
-//     const addEventTicket = tickets.map((item: any) => {
-//         if(item.discount && item.discount != 0) {
-//             return {
-//                 name: item.name,
-//                 price: item.price,
-//                 available: item.totalSeat,
-//                 totalSeat: item.toalSeat,
-//                 bookSeat: 0,
-//                 discount: item.discount,
-//                 discountStart: item.discountStart,
-//                 discountExpiry: item.discountExpiry,
-//                 startDate: item.startDate,
-//                 endDate: item.endDate
-//             }
-//         }
-//         return {
-//             name: item.name,
-//             price: item.price,
-//             available: item.totalSeat,
-//             totalSeat: item.toalSeat,
-//             bookSeat: 0,
-//             startDate: item.startDate,
-//             endDate: item.endDate
-//         }
+    const addEventTicket = tickets.map((item: any) => {
+        if(item.discount && item.discount != 0) {
+            return {
+                name: item.name,
+                price: item.price,
+                available: item.totalSeat,
+                totalSeat: item.toalSeat,
+                bookSeat: 0,
+                discount: item.discount,
+                discountStart: item.discountStart,
+                discountExpiry: item.discountExpiry,
+                startDate: item.startDate,
+                endDate: item.endDate
+            }
+        }
+        return {
+            name: item.name,
+            price: item.price,
+            available: item.totalSeat,
+            totalSeat: item.toalSeat,
+            bookSeat: 0,
+            startDate: item.startDate,
+            endDate: item.endDate
+        }
         
-//     })
+    })
 
-//     await prisma.eventTicket.createMany({
-//         data: addEventTicket
-//     })
+    await prisma.eventTicket.createMany({
+        data: addEventTicket
+    })
 
-//     const addEventImage = eventImages?.images.map((item: any) => {
-//         return { url: item.filename, directory: item.destination, eventId: newEvent.id}
-//     })
+    const addEventImage = eventImages?.images.map((item: any) => {
+        return { url: item.filename, directory: item.destination, eventId: newEvent.id}
+    })
 
-//     await prisma.eventImage.createMany({
-//         data: addEventImage
-//     })
-// }
+    await prisma.eventImage.createMany({
+        data: addEventImage
+    })
+}
 
 export const updateEvent = async(req: Request, res: Response, next: NextFunction) => {
     try {
@@ -127,15 +143,14 @@ export const getEvents = async(req: Request, res: Response, next: NextFunction) 
 
         let { take = 20, skip = 0, name = '' }: any = req.query
         let events;
-        events = await prisma.event.findMany({
-            skip,
-            take,
+        events = await prisma.category.findMany({
+            // skip,
+            // take,
             include: {
-                eventOrganizer: true
+                events: true
             }
         })
 
-        console.log(events)
         if(name?.length >= 3) {
             events = await prisma.event.findMany({
                 where: { 

@@ -1,13 +1,23 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "mysql"
+//   url      = env("DATABASE_URL")
+// }
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -21,7 +31,7 @@ model User {
   profilePictureDirectory String?
   phoneNumber       String?
   birthDate         DateTime? @db.Date
-  address           String?  @db.LongText
+  address           String?  @db.Text
   gender            Gender?
   role              String  @default("CUSTOMER")
   totalPoint        Int     @default(0)
