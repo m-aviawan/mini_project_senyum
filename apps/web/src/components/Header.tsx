@@ -89,7 +89,9 @@ const Header = () => {
                 ) : (
                   <section className="flex gap-5 items-center justify-center">
                     <AlertDialogLogOut setLogOut={setLogOut} />
-                    <Link href='member/profile/information'>
+                    <Link href={
+                      role === 'CUSTOMER' ? '/member/profile/information' : '/event-organizer/member/profile/information'
+                      }>
                       <figure className="bg-gray-200 border border-gray-300 rounded-full h-10 w-10">
                       </figure>
                     </Link>

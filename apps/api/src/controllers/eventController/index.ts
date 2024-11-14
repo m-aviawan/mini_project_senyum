@@ -152,15 +152,14 @@ export const getEvents = async(req: Request, res: Response, next: NextFunction) 
 
         let { take = 20, skip = 0, name = '' }: any = req.query
         let events;
-        events = await prisma.event.findMany({
-            skip,
-            take,
+        events = await prisma.category.findMany({
+            // skip,
+            // take,
             include: {
-                eventOrganizer: true
+                events: true
             }
         })
 
-        console.log(events)
         if(name?.length >= 3) {
             events = await prisma.event.findMany({
                 where: { 

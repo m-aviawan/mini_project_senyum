@@ -37,7 +37,7 @@ const MemberProfileInformationPage = () => {
   
   
 
-  const [date, setDate] = useState<Date>()
+  const [date, setDate] = useState<Date>('2000-01-01')
   interface IValues {
     username: string,
     address: string,
