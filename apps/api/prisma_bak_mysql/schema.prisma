@@ -28,6 +28,7 @@ model User {
   referralCode      String  @unique
   isVerified        Boolean @default(false)
   profilePictureUrl String?
+  profilePictureDirectory String?
   phoneNumber       String?
   birthDate         DateTime? @db.Date
   address           String?  @db.Text
@@ -62,6 +63,7 @@ model EventOrganizer {
   address     String
   phoneNumber String
   profilePictureUrl String?
+  profilePictureDirectory String?
   isVerified  Boolean @default(false)
   pic         String
   role        String  @default("EO")
@@ -173,6 +175,7 @@ model Category {
 model EventImage {
   id  Int    @id @default(autoincrement())
   url String
+  directory String
 
   eventId String
   events  Event  @relation(fields: [eventId], references: [id])

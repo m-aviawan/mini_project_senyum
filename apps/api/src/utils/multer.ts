@@ -1,16 +1,7 @@
 import multer, { FileFilterCallback } from 'multer'
 import { Request } from 'express'
 
-const storage = multer.diskStorage({
-    destination: (req: Request, file: Express.Multer.File, callback) => {
-        callback(null, 'src/public/images')
-    },
-    filename: (req: Request, file: Express.Multer.File, callback) => {
-        const splittedOriginalName = file.originalname.split('.')
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-        callback(null, file.fieldname + '-' + uniqueSuffix + '.' + splittedOriginalName[splittedOriginalName.length - 1])
-    },
-})
+const storage = multer.memoryStorage()
 
 const fileFilter = (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
     const extensionAccepted = ['png', 'jpg', 'jpeg']

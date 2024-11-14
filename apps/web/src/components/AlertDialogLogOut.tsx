@@ -22,7 +22,6 @@ interface IAlertDialogLogOutProps {
 
 const AlertDialogLogOut = ({setLogOut}: IAlertDialogLogOutProps) => {
   const router = useRouter()
-
   return (
     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -40,6 +39,7 @@ const AlertDialogLogOut = ({setLogOut}: IAlertDialogLogOutProps) => {
                           <AlertDialogAction 
                           onClick={() => {
                             setLogOut()
+                            router.refresh()
                             }}>Sure</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

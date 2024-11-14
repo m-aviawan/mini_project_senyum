@@ -5,7 +5,7 @@ export interface IValuesLoginUser {
     password: string,
 }
 
-export interface IResponse {
+export interface IResponseUseMutation {
     onSuccess: (res: any) => void,
     onError: (err: AxiosError) => void,
 }

@@ -9,5 +9,6 @@ export interface IUser {
     totalPoint?       : number,
     createdAt?        : Date,
     updatedAt?        : Date,
-    deletedAt?        : Date
+    deletedAt?        : Date,
+    isGoogleRegistered?: boolean
 }

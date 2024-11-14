@@ -12,14 +12,12 @@ interface IAuthProviderProps {
     children: ReactNode
 }
 
-
-
 const AuthProvider = ({children}: IAuthProviderProps) => {
-    const [syncronization, setSyncronization] = useState(false)
+    // const [syncronization, setSyncronization] = useState(false)
     const setKeepAuth = authStore(state => state.setKeepAuth)
     const role = authStore(state => state.role)
-    const token = authStore(state => state.token)
     const pathname = usePathname()
+    const token = authStore(state => state.token)
     const router = useRouter()
     const { data: dataUser, isPending: isPendingUser, isError: isErrorUser } = useQuery({
         queryKey: ['getDataUser'],
@@ -30,11 +28,12 @@ const AuthProvider = ({children}: IAuthProviderProps) => {
             return auth
         }
     })
-    setTimeout(() => {
-        setSyncronization(true)
-    }, 5000)
+    // setTimeout(() => {
+    //     setSyncronization(true)
+    // }, 500)
     
-    if(isPendingUser || !syncronization) {
+    // if(isPendingUser || !syncronization) {
+    if(isPendingUser ) {
         return (
           <main className='fixed top-0 flex flex-col gap-1 h-screen w-full items-center justify-center'>
             <span className="loading loading-bars loading-lg"></span>
@@ -52,7 +51,11 @@ const AuthProvider = ({children}: IAuthProviderProps) => {
     //     )
     // }
 
-    if(pathname.includes('event-organizer') && !pathname.includes('auth') && role !== 'EO') {
+    if(pathname.includes('event-organizer') && 
+    !pathname.includes('auth') && 
+    role !== 'EO'
+    || (!token && pathname.includes('member'))
+) {
         return router.push('/not-found')
     }
     return (

@@ -30,7 +30,9 @@ export default function RootLayout({
                 position="top-center"
                 reverseOrder={false}
               />
+                <main>
                   {children}
+                </main>
             </NavProvider>
           </AuthProvider>
         </TanstackProvider>

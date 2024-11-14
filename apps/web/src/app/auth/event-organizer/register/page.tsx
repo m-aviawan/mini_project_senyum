@@ -62,8 +62,8 @@ export default function EventOrganizerRegisterPage() {
 
   return (
     <main className='bg-white gap-2 h-fit flex justify-center items-center'>
-        <section className='flex flex-col gap-3 px-24 py-5 w-[70%]'>
-            <h1 className='text-5xl flex flex-col font-bold text-center'>Create Account <span className='mx-1 text-lg font-normal'>as</span> Event Organizer</h1>
+        <section className='flex flex-col gap-3 px-8 sm:px-16 md:px-24 py-5 w-full md:w-[70%]'>
+            <h1 className='text-3xl flex flex-col gap-2 font-bold text-center'>Create Account <span>Event Organizer</span></h1>
             <Formik
             initialValues={{
                 companyName: '',

@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import instance from '@/util/axiosInstance'
 import Link from 'next/link'
 import { MdOutlineEmail } from "react-icons/md";
@@ -18,61 +18,63 @@ import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
 import { MdHome } from "react-icons/md";
 import supabase from '@/supabase'
+import { auth } from '@/firebase'
+import {
+    GoogleAuthProvider,
+    signInWithPopup,
+    onAuthStateChanged,
+    signOut
+} from 'firebase/auth'
 
 export default function RegisterPage() {
+    const provider = new GoogleAuthProvider()
     const setAuth = authStore(state => state.setAuth)
     const setKeepAuth = authStore(state => state.setKeepAuth)
     const router = useRouter()
     interface IValues {
-        username: string,
+        username: string,   
         email: string,
         password: string,
         referralCode?: string,
     }
-    
-    const setRes = authStore(state => state.setRes)
-    const {mutate: mutateRegisterWithGoogle} = useMutation({
-        mutationFn: async() => {
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    queryParams: {
-                        access_type: 'offline',
-                        prompt: 'consent'
-                    }
-                },
+    const { mutate: mutateReqOAuth } = useMutation({
+        mutationFn: async(email: string) => {
+            const res = await instance.post('/auth/o-auth', {
+                email
             })
-
-            console.log(data)
-            console.log('ilovtangerang')
-        },
-        onSuccess: (res) => {
-            toast.success(JSON.stringify(res))
-            console.log(res)
-            // alert(JSON.stringify(res))
-            setRes(JSON.stringify(res))
-        },
-        onError: (err) => {
-            console.log(err)
-            console.log("err")
+            setAuth({
+                isGoogleRegistered: res?.data?.data?.isGoogleRegistered,
+                isVerified: res?.data?.data?.isVerified,
+                role: res?.data?.data?.role,
+                token: res?.data?.data?.token,
+                username: res?.data?.data?.username,
+            })
+        }, onSuccess: () => {
+            setTimeout(() => {
+                router.push('/')
+                toast.success('Authentication with Google success')
+            }, 500)
+        }, onError: () => {
+            toast.error('Authentication with Google failed!')
         }
     })
-    const signInWithGoogle = async() => {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                queryParams: {
-                    access_type: 'offline',
-                    prompt: 'consent'
-                }
-            },
-        })
-        console.log(data)
-        if(error) toast.error('Sign up with Google failed!')
-    }
+
+    const { mutate: mutateOAuth } = useMutation({
+        mutationFn: async() => {
+            const firebase = await signInWithPopup(auth, provider)
+            return firebase
+        },
+        onSuccess: async(res) => {
+            mutateReqOAuth( res?.user?.email as string )
+        },
+        onError: (err) => {
+            toast.error('Authentication with Google failed!')
+        }
+    })
 
     const { mutate: mutateRegister, isPending: isPendingMutateRegister } = useMutation({
         mutationFn: async(values: IValues) => {
+        
             return await instance.post('/auth/register', {
                 username: values?.username,
                 email: values?.email,
@@ -88,10 +90,10 @@ export default function RegisterPage() {
                 isVerified: res.data?.data?.isVerified,
                 isGoogleRegistered: res.data?.data?.isGoogleRegistered,
             })
-            toast.success('Create account success! Check email to verify')
             setTimeout(() => {
                 router.push('/')
-            }, 2000)
+                toast.success('Create account success! Check email to verify')
+            }, 500)
         }, 
         onError: (err: any) => {
             toast.error(err?.response?.data?.message)
@@ -100,7 +102,7 @@ export default function RegisterPage() {
 
   return (
     <main className='bg-white gap-2 h-screen flex justify-center items-center'>
-        <section className='flex flex-col gap-3 px-24 py-5 w-[70%]'>
+        <section className='flex flex-col gap-3 px-8 sm:px-16 md:px-24 py-5 w-full md:w-[70%]'>
             <h1 className='text-black hover:text-gray-700 text-5xl font-bold text-center'>Create account</h1>
             <Formik
             initialValues={{
@@ -138,7 +140,7 @@ export default function RegisterPage() {
                 <div className='h-[0.5px] bg-gray-300 w-full'></div>
             </div>
             <section className='flex flex-col gap-1'>
-                <button onClick={signInWithGoogle} className='p-3 hover:bg-gray-300 transition-[0.5s] rounded-md border border-gray-300 w-full text-sm flex items-center justify-center font-bold gap-3'><FcGoogle size={20}/>Sign up with Google</button>
+                <button onClick={() => mutateOAuth()} className='p-3 hover:bg-gray-300 transition-[0.5s] rounded-md border border-gray-300 w-full text-sm flex items-center justify-center font-bold gap-3'><FcGoogle size={20}/>Sign up with Google</button>
             </section>
         </section>
     </main>
