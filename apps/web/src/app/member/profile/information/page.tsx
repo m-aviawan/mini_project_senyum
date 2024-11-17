@@ -1,43 +1,36 @@
 'use client'
 
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
 import React, { useState } from "react"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Formik, Form, Field } from 'formik'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
 import toast from "react-hot-toast"
 import { Input } from '@/components/ui/input'
+import Image from "next/image"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import instance from "@/util/axiosInstance"
 import { updateProfileUserValidationSchema } from "@/features/member/profile/information/updateProfileUserValidationSchema"
 import authStore from "@/zustand/authStore"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css";
 
 const MemberProfileInformationPage = () => {
   const token = authStore(state => state.token)
+  const imageUrl: string = authStore(state => state.profilePictureUrl)
   const [ dataValues, setDataValues ] = useState<any>({})
+  const [ imagePreview, setImagePreview ] = useState(imageUrl)
+  const [startDate, setStartDate] = useState(new Date());
   const { data: dataProfile, isError, error } = useQuery({
     queryKey: ['getProfileData'],
     queryFn: async() => {
       let res = await instance.get('/user')
       const birthDate = res?.data?.data?.birthDate
-      console.log(res.data.data)
-      setDate(new Date(birthDate))
+      setStartDate(new Date(birthDate))
       return res.data.data
     }
   })
   
   
 
-  const [date, setDate] = useState<Date>('2000-01-01')
   interface IValues {
     username: string,
     address: string,
@@ -47,21 +40,15 @@ const MemberProfileInformationPage = () => {
   }
 
   const { mutate: mutateUpdateUser, isPending: isPendingUpdateUser } = useMutation({
-    mutationFn: async(values: IValues) => {
-      return await instance.patch('/user', {
-        username: values?.username,
-        address: values?.address,
-        birthDate: values?.birthDate,
-        phoneNumber: values?.phoneNumber,
-        gender: values?.gender,
-      })
+    mutationFn: async(fd: FormData) => {
+      const res = await instance.patch('/user', fd)
+      toast.success('Update profile success')
+      return res
     },
     onSuccess: (res) => {
       toast.success('Update profile success')
-      console.log(res)
     },
     onError: (err) => {
-      console.log(err)
       toast.error('Update profile failed!')
     },
   })
@@ -81,6 +68,7 @@ const MemberProfileInformationPage = () => {
       </h1>
       <Formik
       initialValues={{
+        file: [] as File[],
         email: dataProfile?.email || '',
         username: dataProfile?.username || '',
         phoneNumber: dataProfile?.phoneNumber || '',
@@ -90,7 +78,14 @@ const MemberProfileInformationPage = () => {
       }}
       validationSchema={updateProfileUserValidationSchema}
       onSubmit={(values) => {
-        mutateUpdateUser(values)
+        const fd = new FormData()
+        fd.append('birthDate', values?.birthDate)
+        fd.append('username', values?.username)
+        fd.append('phoneNumber', values?.email)
+        fd.append('address', values?.address)
+        fd.append('gender', values?.gender)
+        fd.append('images', values?.file[0])
+        mutateUpdateUser(fd)
       }}
       >
           {
@@ -102,53 +97,68 @@ const MemberProfileInformationPage = () => {
                 <p className='text-gray-500'>Your avatar and cover photo are the first images you'll see on your profile account.</p>
               </article>
               <section className='flex items-center gap-12'>
-                <figure className='h-[120px] w-[120px] rounded-full bg-blue-600'></figure>
+                <figure className='flex items-center justify-center h-[120px] w-[120px] rounded-full bg-gray-200 border border-yellow-400 overflow-hidden'>
+                {
+                    imagePreview.length > 0 ? (
+                      <Image 
+                      src={imagePreview}
+                      alt='profile_image_preview'
+                      width={300}
+                      height={300}
+                      className='object-cover w-full h-full'
+                      />
+                    ) : (
+                      <h1 className='text-md font-bold text-gray-300'>Preview Image</h1>
+                    )
+                  }
+                </figure>
                 <article className='flex flex-col gap-1'>
                   <h1 className='text-gray-600'>Avatar</h1>
-                  <p className='text-gray-500'>Use a high-resolution square image of up to 2MB</p>
+                  <p className='text-gray-500'>Use a high-resolution image up to 2MB</p>
+                  <ErrorMessage component={'div'} name='file' className="text-red-600 text-xs"/>
                 </article>
+              </section>
+              <section>
+              <Input name='file' type='file'
+                onChange={
+                  (e: any) => {
+                    setFieldValue('file', Array.from(e.currentTarget.files || []))
+                    if(e.currentTarget.files && e.currentTarget.files[0])
+                      setImagePreview(URL.createObjectURL(e.target.files[0]))
+                  }
+                  }/>
               </section>
               <section  className='grid grid-cols-2 gap-10'>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Email</h1>
-                  <Field as="Input" name='email' type="email" disabled/>
+                  <Field as={Input} name='email' type="email" disabled/>
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Name<span className="text-red-600 ml-2">*</span></h1>
-                  <Field as="Input" type="text" name='username' />
+                  <Field as={Input} type="text" name='username' />
+                  <ErrorMessage component={'div'} name='username' className="text-red-600 text-xs"/>
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Phone Number<span className="text-red-600 ml-2">*</span></h1>
-                  <Field as="Input" type="text" name='phoneNumber' />
+                  <Field as={Input} type="text" name='phoneNumber' />
+                  <ErrorMessage component={'div'} name='phoneNumber' className="text-red-600 text-xs"/>
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Address</h1>
-                  <Field as="Input" type="text" name='address' />
+                  <Field as={Input} type="text" name='address' />
+                  <ErrorMessage component={'div'} name='address' className="text-red-600 text-xs"/>
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Birth Date</h1>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                        )}
-                        >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                    />
-                    </PopoverContent>
-                  </Popover>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date as Date)}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    className="w-full px-2 py-3 rounded-lg border border-gray-300"
+                  />
                 </section>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Gender</h1>
@@ -157,6 +167,7 @@ const MemberProfileInformationPage = () => {
                     <option value='MALE'>Male</option>
                     <option value='FEMALE'>Female</option>
                   </select>
+                  <ErrorMessage component={'div'} name='gender' className="text-red-600 text-xs"/>
                 </section>
               </section>
               <Button type='submit' className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</Button>

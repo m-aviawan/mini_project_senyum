@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect, useState } from "react"
+import { ReactElement, ReactNode, useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import authStore from "@/zustand/authStore"
 import instance from "@/util/axiosInstance"
@@ -9,11 +9,11 @@ import { AxiosResponse } from "axios"
 import { useRouter } from "next/navigation"
 
 interface IAuthProviderProps {
-    children: ReactNode
+    children: ReactNode | ReactElement | React.JSX.Element
 }
 
 const AuthProvider = ({children}: IAuthProviderProps) => {
-    // const [syncronization, setSyncronization] = useState(false)
+    const [syncronization, setSyncronization] = useState(true)
     const setKeepAuth = authStore(state => state.setKeepAuth)
     const role = authStore(state => state.role)
     const pathname = usePathname()
@@ -24,24 +24,24 @@ const AuthProvider = ({children}: IAuthProviderProps) => {
         queryFn: async() => {
             let res: AxiosResponse = await instance.get('/auth')
             const auth = res.data.data
-            setKeepAuth({role: auth.role, username: auth.username, isVerified: auth.isVerified, isGoogleRegistered: auth.isGoogleRegistered})
+            console.log(auth)
+            setKeepAuth({
+                role: auth.role, 
+                username: auth.username, 
+                isVerified: auth.isVerified, 
+                isGoogleRegistered: auth.isGoogleRegistered,
+                profilePictureUrl: auth.profilePictureUrl
+            })
             return auth
         }
     })
-    // setTimeout(() => {
-    //     setSyncronization(true)
-    // }, 500)
+    setTimeout(() => {
+        setSyncronization(false)
+    }, 1000)
     
     // if(isPendingUser || !syncronization) {
-    if(isPendingUser ) {
-        return (
-          <main className='fixed top-0 flex flex-col gap-1 h-screen w-full items-center justify-center'>
-            <span className="loading loading-bars loading-lg"></span>
-          </main>
-        )
-    }
-    // if(isErrorUser && token && !pathname.includes('auth') && !(pathname === ('/'))) {
-    //     return (
+        // if(isErrorUser && token && !pathname.includes('auth') && !(pathname === ('/'))) {
+            //     return (
     //       <main>
     //         <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
     //           <h1 className='text-3xl font-bold'>Getting data failed!</h1>
@@ -51,15 +51,22 @@ const AuthProvider = ({children}: IAuthProviderProps) => {
     //     )
     // }
 
+    if(isPendingUser || syncronization ) {
+        return (
+          <main className='fixed top-0 flex flex-col gap-1 h-screen w-full items-center justify-center'>
+            <span className="loading loading-bars loading-lg"></span>
+          </main>
+        )
+    }
     if(pathname.includes('event-organizer') && 
     !pathname.includes('auth') && 
     role !== 'EO'
     || (!token && pathname.includes('member'))
 ) {
-        return router.push('/not-found')
-    }
-    return (
-        <>
+    router.push('/not-found')
+}
+return (
+    <>
             { children }
         </>
     )

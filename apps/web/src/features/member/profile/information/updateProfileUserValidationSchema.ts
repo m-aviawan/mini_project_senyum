@@ -6,5 +6,15 @@ export const updateProfileUserValidationSchema = Yup.object().shape({
     phoneNumber: Yup.string(),
     address: Yup.string(),
     birthDate: Yup.string(),
-    gender: Yup.string()
+    gender: Yup.string(),
+    file: Yup.array().of(
+        Yup.mixed<File>().test('fileSize', 'Maximum 2MB file size allowed!', file => {
+            const limitFileSize = 2000000
+            return file && file.size <= limitFileSize
+        })
+        .test('fileFormat', 'File format must be png, jpg, or jpeg', file => {
+            const fileFormatAccepted = ['jpg', 'jpeg', 'png']
+            return file && fileFormatAccepted.includes(file.type.split('/')[1])
+        })
+    ) 
 })

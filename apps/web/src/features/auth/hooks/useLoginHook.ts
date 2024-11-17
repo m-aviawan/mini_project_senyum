@@ -18,11 +18,12 @@ const useLoginHook = (role: string, endPoint: string) => {
       token: res.data?.token,
       isVerified: res.data?.isVerified,
       isGoogleRegistered: res.data?.isGoogleRegistered,
+      profilePictureUrl: res.data?.profilePictureUrl,
     })
+    toast.success(res.message)
     setTimeout(() => {
       router.push('/')
-      toast.success(res.message)
-    }, 500)
+    }, 1500)
     }
 
   const onError = (err: any) => {

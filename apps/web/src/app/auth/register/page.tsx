@@ -42,18 +42,20 @@ export default function RegisterPage() {
             const res = await instance.post('/auth/o-auth', {
                 email
             })
+            return res
+        }, onSuccess: (res) => {
             setAuth({
                 isGoogleRegistered: res?.data?.data?.isGoogleRegistered,
                 isVerified: res?.data?.data?.isVerified,
                 role: res?.data?.data?.role,
                 token: res?.data?.data?.token,
                 username: res?.data?.data?.username,
+                profilePictureUrl: res?.data?.data?.profilePictureUrl,
             })
-        }, onSuccess: () => {
+            toast.success('Authentication with Google success')
             setTimeout(() => {
                 router.push('/')
-                toast.success('Authentication with Google success')
-            }, 500)
+            }, 1500)
         }, onError: () => {
             toast.error('Authentication with Google failed!')
         }
@@ -90,13 +92,13 @@ export default function RegisterPage() {
                 isVerified: res.data?.data?.isVerified,
                 isGoogleRegistered: res.data?.data?.isGoogleRegistered,
             })
+            toast.success('Create account success! Check email to verify')
             setTimeout(() => {
                 router.push('/')
-                toast.success('Create account success! Check email to verify')
-            }, 500)
+            }, 1500)
         }, 
         onError: (err: any) => {
-            toast.error(err?.response?.data?.message)
+            toast.error('Register failed!')
         }
     })
 

@@ -18,13 +18,8 @@ export const createEvent = async(req: Request, res: Response, next: NextFunction
         files = Array.isArray(req.files) ?
         req.files : req.files['images']
 
-        
-        console.log('>>>>>>>>>')
-        console.log(files)
         for (let item of files) {
             const result: any = await cloudinaryUpload(item?.buffer)
-            console.log('result')
-            console.log(result)
             const res: string = result?.res!
             imagesUploaded.push(res)
         }

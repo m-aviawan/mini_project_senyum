@@ -35,6 +35,8 @@ export default function AuthPage() {
             const res = await instance.post('/auth/o-auth', {
                 email
             })
+            return res
+        }, onSuccess: (res) => {
             setAuth({
                 isGoogleRegistered: res?.data?.data?.isGoogleRegistered,
                 isVerified: res?.data?.data?.isVerified,
@@ -42,11 +44,10 @@ export default function AuthPage() {
                 token: res?.data?.data?.token,
                 username: res?.data?.data?.username,
             })
-        }, onSuccess: () => {
+            toast.success('Authentication with Google success')
             setTimeout(() => {
                 router.push('/')
-                toast.success('Authentication with Google success')
-            }, 500)
+            }, 1500)
         }, onError: () => {
             toast.error('Authentication with Google failed!')
         }

@@ -1,4 +1,5 @@
 import prisma from "@/connection/prisma"
+import { cloudinaryUpload } from "@/utils/cloudinary";
 import { Request, Response, NextFunction } from "express"
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,7 +20,8 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
                 phoneNumber: userData?.phoneNumber,
                 address: userData?.address,
                 birthDate: userData?.birthDate,
-                gender: userData?.gender
+                gender: userData?.gender,
+                profilePictureUrl: userData?.profilePictureUrl
             }
         } else if(role === 'EO') {
             userData = await prisma.eventOrganizer.findUnique({
@@ -29,9 +31,11 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
             if(!userData?.id) throw { msg: 'Event organizer not found!' }
             resData = {
                 companyName: userData?.companyName,
+                address: userData?.address,
                 email: userData?.email,
                 phoneNumber: userData?.phoneNumber,
-                pic: userData?.pic
+                pic: userData?.pic,
+                profilePictureUrl: userData?.profilePictureUrl
             }
         }
         
@@ -45,51 +49,109 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 
-export const updateUser = async(req: Request, res: Response, next: NextFunction) => {
+export const updateProfile = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        const { username, phoneNumber, address, birthDate, gender, id, role } = req.body
-        console.log(req.body)
-        let updatedUser
-        if(role !== 'CUSTOMER') throw { msg: 'role invalid!', status: 406 }
-        if(birthDate) {
-            updatedUser = await prisma.user.update({
-                where: {
-                    id
-                },
-                data: {
-                    username,
-                    phoneNumber,
-                    address,
-                    birthDate: new Date(birthDate),
-                    gender
-                }
-            })
-        } else {
-            updatedUser = await prisma.user.update({
-                where: {
-                    id
-                },
-                data: {
-                    username,
-                    phoneNumber,
-                    address,
-                    gender
-                }
-            })
-
+        const { username, phoneNumber, address, birthDate, gender, id, role, pic, companyName } = req.body
+        
+        let files, updatedProfile, imagesUploaded, resData;
+        if(req.files) {
+            files = Array.isArray(req.files) ? 
+            req.files : req.files['images']
+            
+            const response: any = await cloudinaryUpload(files[0].buffer)
+            const res: string = response?.res
+            imagesUploaded = res
         }
-        console.log(updatedUser)
-        console.log('12345')
+
+        if(role === 'CUSTOMER') {
+            if(imagesUploaded) {
+                updatedProfile = await prisma.user.update({
+                    where: {
+                        id
+                    },
+                    data: {
+                        username,
+                        phoneNumber,
+                        address,
+                        birthDate: new Date(birthDate),
+                        gender,
+                        profilePictureUrl: imagesUploaded
+                    }
+                })
+                resData = {
+                    username,
+                    phoneNumber,
+                    address,
+                    birthDate,
+                    gender,
+                    ProfilePictureUrl: imagesUploaded
+                }
+            } else {
+                updatedProfile = await prisma.user.update({
+                    where: {
+                        id
+                    },
+                    data: {
+                        username,
+                        phoneNumber,
+                        address,
+                        birthDate: new Date(birthDate),
+                        gender
+                    }
+                })
+                resData = {
+                    username,
+                    phoneNumber,
+                    address,
+                    birthDate,
+                    gender
+                }
+            }
+        } else if( role === 'EO') {
+            if(imagesUploaded) {
+                updatedProfile = await prisma.eventOrganizer.update({
+                    where: {
+                        id
+                    },
+                    data: {
+                        companyName,
+                        phoneNumber,
+                        address,
+                        pic,
+                        profilePictureUrl: imagesUploaded
+                    }
+                })
+                resData = {
+                    companyName,
+                    phoneNumber,
+                    address,
+                    pic,
+                    profilePictureUrl: imagesUploaded
+                }
+            } else {
+                updatedProfile = await prisma.eventOrganizer.update({
+                    where: {
+                        id
+                    },
+                    data: {
+                        companyName,
+                        phoneNumber,
+                        address,
+                        pic
+                    }
+                })
+                resData = {
+                    companyName,
+                    phoneNumber,
+                    address,
+                    pic
+                }
+            }
+        }
         res.status(200).json({
             error: false,
-            message: 'Update user success',
-            data: {
-                username,
-                phoneNumber,
-                address,
-                birthDate,
-                gender
-            }
+            message: 'Update profile success',
+            data: resData
         })
     } catch (error) {
         next(error)

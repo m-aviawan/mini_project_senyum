@@ -5,8 +5,6 @@ import { deleteImages } from "@/utils/deleteImages";
 export const updateProfileEO = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, email, pic, phoneNumber, address } = req.body
-        console.log(id)
-        console.log('aaaaaaaa')
         const uploadedImages: any = req.files
 
         let createImage;
@@ -28,7 +26,6 @@ export const updateProfileEO = async(req: Request, res: Response, next: NextFunc
                 phoneNumber,
                 address,
                 profilePictureUrl: createImage.imageUrl,
-                profilePictureDirectory: createImage.directory
             }
         })
 
