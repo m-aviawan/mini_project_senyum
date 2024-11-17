@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import prisma from "@/connection/prisma"
 import { createToken, createTokenForVerifyRegister, decodeToken } from "@/utils/jsonWebToken"
-import { authenticationUserService, registerUserService } from "@/services/authService"
+import { authenticationUserService, keepAuthService, registerUserService } from "@/services/authService"
 import { IUser } from "@/services/authService/types"
 import fs from 'fs'
 import { compile } from "handlebars"
@@ -15,114 +15,19 @@ import { JwtPayload } from "jsonwebtoken"
 export const registerUser = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { username, email, password, referralCode } = req.body
-        let token, newUser, createdReferralPoint, createdReferralDiscount;
         
-        const userReferralCode = uuid().slice(0, 8)
-        let isReferralCodeCorrect = false
-        const isEmailUsed = await prisma.user.findUnique({
-            where: { email }
-        })
-        
-        if(isEmailUsed?.id) throw { msg: 'Email has been used! Try another', status: 406 }
-        await prisma.$transaction(async(tx) => {
-            
-            newUser = await tx.user.create({
-                data: { username, email, password: await hashPassword(password), referralCode: userReferralCode }
-            })
-    
-            if(referralCode) {
-                const isRefferalCodeCorrect = await tx.user.findUnique({
-                    where: { referralCode }
-                })
-                if(isRefferalCodeCorrect?.id) {
-                    createdReferralDiscount = await tx.referralDiscount.create({
-                        data: {
-                            userId: newUser.id,
-                            percentDiscount: 10,
-                            expiry: addMonths(new Date, 3)
-                        }
-                    })
-        
-                    createdReferralPoint = await tx.referralPoint.create({
-                        data: {
-                            point: 10000,
-                            userId: isRefferalCodeCorrect.id,
-                            expiry: addMonths(new Date, 3)
-                        }
-                    })
-        
-                    await tx.user.update({
-                        where: { id: isRefferalCodeCorrect.id },
-                        data: { totalPoint: isRefferalCodeCorrect.totalPoint + 10000 }
-                    })
-                    
-                    isReferralCodeCorrect = true
+        const resData = await registerUserService({ username, email, password, referralCode })
 
-                }
-                
-            }
-            
-        })
-        if(isReferralCodeCorrect) {
-            const query = await mySqlConnection()
-            await query.query(`
-               CREATE EVENT transaction_${email}
-               ON SCHEDULE AT NOW() + INTERVAL 1 MINUTE 
-               DO
-               BEGIN
-                UPDATE referral_points SET point = 0 WHERE id = '${createdReferralPoint!.id}'   
-                UPDATE referral_discounts SET isUsed = 1 WHERE id = '${createdReferralDiscount!.id}'   
-                `)
-
-
-            const emailBodyReferralDiscount = fs.readFileSync('./src/public/emailHTMLCollections/getReferralDiscount.html', 'utf-8')
-    
-            let compiledEmailBodyReferralDiscount: any = await compile(emailBodyReferralDiscount)
-            compiledEmailBodyReferralDiscount = compiledEmailBodyReferralDiscount({discount: `10%`, expiry: addMonths(new Date(), 3)})
-    
-            await transporter.sendMail({
-                to: email,
-                subject: 'Keep Your Refferal Discount [Spiral Tickets]',
-                html: compiledEmailBodyReferralDiscount
-            })
-
-
-        }
-
-        token = await createToken({id: newUser!.id, role: newUser!.role})
-        const tokenForVerifyRegister = await createTokenForVerifyRegister({id: newUser!.id, role: newUser!.role})
-        if(!token) throw { msg: 'Create token failed', status: 500 }
-
-        const emailBodyVerifyRegister = fs.readFileSync('./src/public/emailHTMLCollections/verifyRegister.html', 'utf-8')
-        const emailBodyReferralCode = fs.readFileSync('./src/public/emailHTMLCollections/getReferralCode.html', 'utf-8')
- 
-        let compiledEmailBodyVerifyRegister: any = await compile(emailBodyVerifyRegister)
-        compiledEmailBodyVerifyRegister = compiledEmailBodyVerifyRegister({username, url: `http://localhost:3000/verify-register/${tokenForVerifyRegister}`})
-
-        let compiledEmailBodyReferralCode: any = await compile(emailBodyReferralCode)
-        compiledEmailBodyReferralCode = compiledEmailBodyReferralCode({referralCode: userReferralCode, username})
-
-        
-        await transporter.sendMail({
-            to: email,
-            subject: 'Verify Register [Spiral Tickets]',
-            html: compiledEmailBodyVerifyRegister
-        })
-
-        await transporter.sendMail({
-            to: email,
-            subject: 'Referral Code [Spiral Tickets]',
-            html: compiledEmailBodyReferralCode
-        })
         res.status(201).json({
             error: false,
-            message: "Register user success",
+            message: "Register success",
             data: {
-                username,
-                token,
-                role: newUser!.role ,
-                isVerified: newUser!.isVerified,
-                isGoogleRegistered: newUser!.isGoogleRegistered
+                username: resData.username,
+                token: resData.token,
+                role: resData.role,
+                isVerified: resData.isVerified,
+                isGoogleRegistered: resData.isGoogleRegistered,
+                profilePictureUrl: resData.profilePictureUrl
             }
         })
     } catch (error) {
@@ -145,7 +50,8 @@ export const authenticationUser = async(req: Request, res: Response, next: NextF
                 username: user!.username,
                 role: user!.role,
                 isVerified: user!.isVerified,
-                isGoogleRegistered: user!.isGoogleRegistered
+                isGoogleRegistered: user!.isGoogleRegistered,
+                profilePictureUrl: user!.profilePictureUrl
             }
         })
     } catch (error) {
@@ -156,26 +62,7 @@ export const authenticationUser = async(req: Request, res: Response, next: NextF
 export const keepAuth = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, role, token } = req.body
-        let username, isVerified, isGoogleRegistered;
-        if(role === 'CUSTOMER') {
-            const user = await prisma.user.findUnique({
-                where: {
-                    id
-                }
-            })
-            username = user?.username
-            isVerified = user?.isVerified
-            isGoogleRegistered = user?.isGoogleRegistered
-        } else if( role === 'EO') {
-            const user = await prisma.eventOrganizer.findUnique({
-                where: {
-                    id
-                }
-            })
-            username = user?.companyName
-            isVerified = user?.isVerified
-            isGoogleRegistered = false
-        }
+        const resData = await keepAuthService({ id, role })
 
         res.status(200).json({
             error: false,
@@ -183,9 +70,10 @@ export const keepAuth = async(req: Request, res: Response, next: NextFunction) =
             data: {
                 token,
                 role,
-                username,
-                isVerified,
-                isGoogleRegistered
+                username: resData.username,
+                isVerified: resData.isVerified,
+                isGoogleRegistered: resData.isGoogleRegistered,
+                profilePictureUrl: resData.profilePictureUrl
             }
         })
     } catch (error) {
@@ -197,7 +85,7 @@ export const verifyRegister = async(req: Request, res: Response, next: NextFunct
     try {
         const { id, role } = req.body
 
-        let user, username, isGoogleRegistered;
+        let user, username, isGoogleRegistered, profilePictureUrl;
         if(role === 'CUSTOMER') {
             user = await prisma.user.findUnique({
                 where: {
@@ -212,6 +100,7 @@ export const verifyRegister = async(req: Request, res: Response, next: NextFunct
             })
             username = user?.username
             isGoogleRegistered = user?.isGoogleRegistered
+            profilePictureUrl = user?.profilePictureUrl
         } else if(role === 'EO') {
             user = await prisma.eventOrganizer.findUnique({
                 where: {
@@ -226,6 +115,7 @@ export const verifyRegister = async(req: Request, res: Response, next: NextFunct
             })
             username = user?.companyName
             isGoogleRegistered = false
+            profilePictureUrl = user?.profilePictureUrl
         } else {
             throw { msg: 'Role not found!', status: 406 }
         }
@@ -240,7 +130,8 @@ export const verifyRegister = async(req: Request, res: Response, next: NextFunct
                 role,
                 username,
                 isVerified: true,
-                isGoogleRegistered
+                isGoogleRegistered,
+                profilePictureUrl
             }
         })
     } catch (error) {
@@ -291,7 +182,8 @@ export const registerEO = async(req: Request, res: Response, next: NextFunction)
                 token,
                 role: newEO.role,
                 isVerified: newEO.isVerified,
-                isGoogleRegistered: false
+                isGoogleRegistered: false,
+                profilePictureUrl: newEO.profilePictureUrl
             }
         })
     } catch (error) {
@@ -331,6 +223,7 @@ export const authWithGoogle = async(req: Request, res: Response, next: NextFunct
                 id: checkUser?.id,
                 isVerified: newUser?.isVerified,
                 isGoogleRegistered: newUser?.isGoogleRegistered,
+                profilePictureUrl: newUser?.profilePictureUrl,
             }
         
             const emailBodyReferralCode = fs.readFileSync('./src/public/emailHTMLCollections/getReferralCode.html', 'utf-8')
@@ -350,6 +243,7 @@ export const authWithGoogle = async(req: Request, res: Response, next: NextFunct
                 isVerified: checkUser?.isVerified,
                 id: checkUser?.id,
                 isGoogleRegistered: checkUser?.isGoogleRegistered,
+                profilePictureUrl: checkUser?.profilePictureUrl,
             }
         } else {
             throw { msg: 'Email or Password invalid! Try again', status: 406 }
@@ -365,7 +259,8 @@ export const authWithGoogle = async(req: Request, res: Response, next: NextFunct
                 username: userData?.username,
                 role: userData?.role,
                 isVerified: userData?.isVerified,
-                isGoogleRegistered: userData?.isGoogleRegistered
+                isGoogleRegistered: userData?.isGoogleRegistered,
+                profilePictureUrl: userData?.profilePictureUrl
             }
         })
 
@@ -441,36 +336,3 @@ export const resetPassword = async(req: Request, res: Response, next: NextFuncti
         next(error)
     }
 }
- 
-// export const signInWithGoogle = async(req: Request, res: Response, next: NextFunction) => {
-//     const token = createToken()
-// }
-
-// model EventOrganizer {
-//     id          String  @id @default(cuid())
-//     email       String
-//     companyName String
-//     phoneNumber String
-//     isVerified  Boolean @default(false)
-//     pic         String
-//     role        String  @default("EO")
-//     events      Event[]
-  
-//     createdAt DateTime  @default(now())
-//     updatedAt DateTime  @updatedAt
-//     deletedAt DateTime?
-  
-//     @@map("event_organizers")
-//   }
-
-/*
- id           String   @id @default(cuid())
-  firstName    String
-  lastName     String
-  email        String   @unique
-  gender       Gender
-  birthDate    DateTime
-  idCardNumber String
-  referralCode String   @default(cuid())
-  role       
-*/

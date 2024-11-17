@@ -7,7 +7,12 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'www.locknlock.com',
                 pathname: '**'
-            }
+            },
+            {
+                protocol: 'https',
+                hostname: 'res.cloudinary.com',
+                pathname: '**'
+            },
         ]
     }
 

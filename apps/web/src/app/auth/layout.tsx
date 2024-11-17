@@ -19,10 +19,10 @@ export default function AuthLayout({children}: IAuthLayoutProps) {
             <Link href="/">
                 <MdHome className='h-5 w-5 top-10 left-10 text-black hover:text-gray-700'/>
             </Link>
-            <Link href='/auth'>
+            <Link href={pathname.includes('register') ? '/auth/register' : '/auth'}>
                 <div className='text-black border border-gray-200 hover:bg-gray-200 rounded-lg px-3 py-1'>As User</div>
             </Link>
-            <Link href='/auth/event-organizer'>
+            <Link href={pathname.includes('register') ? '/auth/event-organizer/register' : '/auth/event-organizer'}>
                 <div className='text-black border border-gray-200 hover:bg-gray-200 rounded-lg px-3 py-1'>As Event Organizer</div>
             </Link>
             </nav>

@@ -15,6 +15,7 @@ import {
 import { Button } from "./ui/button";
 import { MdLogout } from "react-icons/md";
 import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 interface IAlertDialogLogOutProps {
     setLogOut: () => void
@@ -22,6 +23,7 @@ interface IAlertDialogLogOutProps {
 
 const AlertDialogLogOut = ({setLogOut}: IAlertDialogLogOutProps) => {
   const router = useRouter()
+  const pathname = usePathname()
   return (
     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -38,8 +40,12 @@ const AlertDialogLogOut = ({setLogOut}: IAlertDialogLogOutProps) => {
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction 
                           onClick={() => {
-                            setLogOut()
-                            router.refresh()
+                            setTimeout(() => {
+                              setLogOut()
+                            }, 1000)
+                            if(pathname.includes('member') || pathname.includes('event-organizer')) {
+                              router.push('/')
+                            }
                             }}>Sure</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

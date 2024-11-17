@@ -86,18 +86,18 @@ export default function Home() {
             const fixedEndDate = `${dateEnd} ${monthEnd} ${yearEnd}`;
                 return (
                   <Link href={`/events/${btoa(itm.id)}`}>
-                    <section className="hover:translate-y-5 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden drop-shadow-lg w-[250px]">
-                      <div className="h-[150px] bg-orange-400 w-full"></div>
+                    <section className="hover:-translate-y-3 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden shadow-lg w-[250px]">
+                      <div className="h-[150px] bg-gray-300 w-full"></div>
                       <section className="flex flex-col p-5 text-sm gap-2 w-full">
                         <article className="flex flex-col gap-2">
-                          <h1 className="font-bold">{itm?.name}</h1>
+                          <h1 className="font-bold">{itm?.name.toString().length <= 20 ? itm?.name : itm?.name.slice(0,20) + '...'}</h1>
                           <p className="text-gray-600">
                             {fixedEndDate === fixedStartDate
                               ? fixedStartDate
                               : `${fixedStartDate} - ${fixedEndDate}`}
                           </p>
-                          <p className="text-gray-600">{itm.locationName}</p>
-                          <p className="text-gray-600">{itm.location}</p>
+                          <p className="text-gray-600">{itm?.locationName.toString().length <= 20 ? itm?.locationName : itm?.locationName.slice(0,20) + '...'}</p>
+                          <p className="text-gray-600">{itm?.location === undefined || itm?.location === '' ? 'Online' : itm?.location.toString().length <= 20 ? itm?.location : itm?.location.slice(0,20) + '...'}</p>
                           <p className="font-bold">
                             {itm.isPaid ? 'Paid' : 'Free'}
                           </p>
@@ -131,15 +131,15 @@ export default function Home() {
         <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
       </section>
       <section className='flex gap-5'>
-        <div className='bg-teal-700 rounded-xl h-[120px] w-[120px] p-3 flex items-end justify-center text-center text-sm font-bold'>
-          <p className='text-white drop-shadow-md'>Wahana</p>
-        </div>
-        <div className='bg-teal-700 rounded-xl h-[120px] w-[120px] p-3 flex items-end justify-center text-center text-sm font-bold'>
-          <p className='text-white drop-shadow-md'>Akomodasi</p>
-        </div>
-        <div className='bg-teal-700 rounded-xl h-[120px] w-[120px] p-3 flex items-end justify-center text-center text-sm font-bold'>
-          <p className='text-white drop-shadow-md'>Taman Bermain</p>
-        </div>
+        {
+          dataEvents.map((item: any, index: number) => {
+            return(
+            <div key={index} className='bg-teal-700 rounded-xl h-[120px] w-[120px] p-3 flex items-end justify-center text-center text-sm font-bold'>
+              <p className='text-white drop-shadow-md'>{item?.name}</p>
+            </div>
+            )
+          })
+        }
       </section>
     </main>
   )

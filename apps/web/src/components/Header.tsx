@@ -22,6 +22,7 @@ const Header = () => {
   const token = authStore(state => state.token)
   const setLogOut = authStore(state => state.setLogOut)
   const role = authStore(state => state.role)
+  const imageUrl: string = authStore(state => state.profilePictureUrl)
   const [logOutConfirmation, setLogOutConfirmation] = useState(false)
   const router = useRouter()
 //nyimpen data diglobal state
@@ -92,7 +93,18 @@ const Header = () => {
                     <Link href={
                       role === 'CUSTOMER' ? '/member/profile/information' : '/event-organizer/member/profile/information'
                       }>
-                      <figure className="bg-gray-200 border border-gray-300 rounded-full h-10 w-10">
+                      <figure className="bg-gray-200 border border-gray-300 rounded-full h-10 w-10 overflow-hidden">
+                      {
+                        imageUrl.length > 0 && (
+                          <Image
+                            width={300}
+                            height={300}
+                            src={imageUrl}
+                            alt="img-profile"
+                            className="object-cover h-full w-full"
+                            />
+                        )
+                      }
                       </figure>
                     </Link>
                   </section> 

@@ -49,6 +49,7 @@ export default function EventOrganizerRegisterPage() {
                 token: res?.data?.data?.token,
                 isVerified: res?.data?.data?.isVerified,
                 isGoogleRegistered: res?.data?.data?.isGoogleRegistered,
+                profilePictureUrl: res?.data?.data?.profilePictureUrl,
             })
             toast.success('Create account success! Check email to verify')
             setTimeout(() => {

@@ -12,3 +12,7 @@ export interface IUser {
     deletedAt?        : Date,
     isGoogleRegistered?: boolean
 }
+
+export interface IUserWithToken extends IUser {
+    token: string
+}
