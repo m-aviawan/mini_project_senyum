@@ -11,14 +11,15 @@ import authStore from '@/zustand/authStore'
 export default function Home() {
   const { data: dataEvents, isPending: isPendingEvents, isError: isErrorEvents } = useQuery({
     queryKey: ['getEvents'],
+
     queryFn: async() => {
       let res = await instance.get('/event')
       return res.data.data
     }
   })
-  
+console.log(dataEvents,'<<<<<<<<<<<<<<<<dataEvents')
   const result = authStore(state => state.res)
-  console.log(result)
+  console.log(dataEvents)
   if(isPendingEvents) {
     return (
       <main className='fixed top-0 flex flex-col gap-1 h-screen w-full items-center justify-center'>
@@ -71,6 +72,7 @@ export default function Home() {
           <div className='bg-white rounded-md h-[150px] w-full'></div>
         </section>
       </section>
+      aaaaaaaaa
       {dataEvents?.map((item: any) => {
         
         return (
@@ -87,7 +89,9 @@ export default function Home() {
                 return (
                   <Link href={`/events/${btoa(itm.id)}`}>
                     <section className="hover:-translate-y-3 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden shadow-lg w-[250px]">
-                      <div className="h-[150px] bg-gray-300 w-full"></div>
+                      <div className="h-[150px] bg-300 w-full"> 
+                        <Image src={itm?.images[0]?.url} width={500} height={500} alt='event'/>
+                        </div>
                       <section className="flex flex-col p-5 text-sm gap-2 w-full">
                         <article className="flex flex-col gap-2">
                           <h1 className="font-bold">{itm?.name.toString().length <= 20 ? itm?.name : itm?.name.slice(0,20) + '...'}</h1>
@@ -115,6 +119,8 @@ export default function Home() {
           </section>
         );
       })}
+
+      bbbbbbb
       <section className='flex gap-5'>
         <div className='bg-blue-900 rounded-2xl h-[400px] w-[280px] drop-shadow-lg'></div>
         <div className='bg-blue-900 rounded-2xl h-[400px] w-[280px] drop-shadow-lg'></div>
@@ -130,7 +136,7 @@ export default function Home() {
         <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
         <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
       </section>
-      <section className='flex gap-5'>
+      {/* <section className='flex gap-5'>
         {
           dataEvents.map((item: any, index: number) => {
             return(
@@ -140,7 +146,7 @@ export default function Home() {
             )
           })
         }
-      </section>
+      </section> */}
     </main>
   )
 }

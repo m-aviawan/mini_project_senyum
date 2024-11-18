@@ -5,13 +5,19 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'www.locknlock.com',
+                hostname: 'i0.wp.com',
                 pathname: '**'
             },
             {
                 protocol: 'https',
                 hostname: 'res.cloudinary.com',
                 pathname: '**'
+            },
+            {
+                
+                hostname: 'assets.loket.com',
+                pathname: '**'
+            
             },
         ]
     }

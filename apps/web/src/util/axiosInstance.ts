@@ -3,7 +3,7 @@ import axios from "axios";
 import { error } from "console";
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8000/api'
+    baseURL: 'http://localhost:4000/api'
 })
 
 instance.interceptors.request.use(

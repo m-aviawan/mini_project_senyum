@@ -151,7 +151,12 @@ export const getEvents = async(req: Request, res: Response, next: NextFunction) 
             // skip,
             // take,
             include: {
-                events: true
+                events: {
+                    include: {
+                        images: true
+                    }
+                },
+                
             }
         })
 
