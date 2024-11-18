@@ -9,7 +9,7 @@ export const createEvent = async(req: Request, res: Response, next: NextFunction
     const { 
         id, name, type, locationName,
         location, url = null, description = null, startDate,
-        endDate, isPaid = false, categoryId, tickets
+        endDate, isPaid = true, categoryId, tickets
     } = req.body
 
     let files 
@@ -240,6 +240,7 @@ export const getEventDetail = async(req: Request, res: Response, next: NextFunct
         })
     })
 
+    console.log(eventTickets)
     res.status(200).json({
         error: false,
         message: 'Get event detail success',

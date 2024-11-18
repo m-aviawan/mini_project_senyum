@@ -24,7 +24,6 @@ const AuthProvider = ({children}: IAuthProviderProps) => {
         queryFn: async() => {
             let res: AxiosResponse = await instance.get('/auth')
             const auth = res.data.data
-            console.log(auth)
             setKeepAuth({
                 role: auth.role, 
                 username: auth.username, 
@@ -65,6 +64,10 @@ const AuthProvider = ({children}: IAuthProviderProps) => {
 ) {
     router.push('/not-found')
 }
+
+    if(pathname.includes('auth') && token) {
+        router.push('/')
+    }
 return (
     <>
             { children }

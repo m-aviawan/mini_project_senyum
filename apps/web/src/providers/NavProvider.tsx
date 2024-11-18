@@ -40,7 +40,6 @@ const NavProvider = ({children}: INavProviderProps) => {
         <section className='z-0 p-5 pt-20'>
             {children}
         </section>
-        <Footer />
     </main>
   )
 }

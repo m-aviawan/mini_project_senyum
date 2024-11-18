@@ -103,9 +103,9 @@ export default function RegisterPage() {
     })
 
   return (
-    <main className='bg-white gap-2 h-screen flex justify-center items-center'>
+    <main className='bg-white gap-2 flex justify-center items-center'>
         <section className='flex flex-col gap-3 px-8 sm:px-16 md:px-24 py-5 w-full md:w-[70%]'>
-            <h1 className='text-black hover:text-gray-700 text-5xl font-bold text-center'>Create account</h1>
+            <h1 className='text-black hover:text-gray-700 text-3xl font-bold text-center'>Create account</h1>
             <Formik
             initialValues={{
                 username: '',

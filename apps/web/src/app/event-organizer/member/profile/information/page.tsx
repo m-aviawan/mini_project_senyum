@@ -33,7 +33,7 @@ const EOMemberProfileInformationPage = () => {
     }
   })
 
-  const { mutate: mutateUpdateEO } = useMutation({
+  const { mutate: mutateUpdateEO, isPending: isPendingUpdateEO } = useMutation({
     mutationFn: async(fd: FormData) => {
       const res = await instance.patch('/event-organizer', fd)
       toast.success('Update profile success')
@@ -43,7 +43,7 @@ const EOMemberProfileInformationPage = () => {
       toast.success('Update profile success')
     },
     onError: (err) => {
-      toast.error('Update profile failed1')
+      toast.error('Update profile failed!')
     }
   })
 
@@ -83,8 +83,8 @@ const EOMemberProfileInformationPage = () => {
           {
             ({setFieldValue}) => (
             <Form>
-            <section id='user-information' className='flex flex-col gap-10 text-[15px] px-12'>
-              <section className='flex flex-col items-center gap-3 px-10'>
+            <section id='user-information' className='flex flex-col gap-10 text-[15px] xl:px-12 px-4'>
+              <section className='flex flex-col items-center gap-3 xl:px-10 px-2'>
                 <figure className='flex items-center justify-center overflow-hidden h-[200px] w-full rounded-2xl bg-gray-200 border border-yellow-400'>
                   {
                     imagePreview.length > 0 ? (
@@ -132,7 +132,7 @@ const EOMemberProfileInformationPage = () => {
                   <ErrorMessage name='address' component={'div'} className="text-red-600 text-xs"/>
                 </section>
               </section>
-              <button type='submit' className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</button>
+              <Button type='submit' className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</Button>
             </section>
             </Form>
             )

@@ -41,8 +41,9 @@ const MemberProfileInformationPage = () => {
 
   const { mutate: mutateUpdateUser, isPending: isPendingUpdateUser } = useMutation({
     mutationFn: async(fd: FormData) => {
-      const res = await instance.patch('/user', fd)
       toast.success('Update profile success')
+
+      const res = await instance.patch('/user', fd)
       return res
     },
     onSuccess: (res) => {
