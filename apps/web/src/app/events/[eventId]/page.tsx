@@ -41,9 +41,12 @@ import { MdOutlineStar } from "react-icons/md";
 import { IoTicketSharp } from "react-icons/io5";
 import { reviewValidationSchema } from '@/features/events/schemas/reviewValidationSchema'
 import toast from 'react-hot-toast'
+import authStore from '@/zustand/authStore'
 
 const EventPage = ({params}: any) => {
 
+const isVerified = authStore(state => state.isVerified)
+const role = authStore(state => state.role)
 let eventId: string = params.eventId
 eventId = eventId.replace(/%3D/g, "=")
 eventId = atob(eventId)
@@ -109,6 +112,11 @@ const [ addToCart, setAddToCart ] = useState<any>([])
 const [ grandTotal, setGrandTotal ] = useState<number>(0)
 
 const quantityOperator = (id: string, name: string, price: number, operator: string) => {
+    if( isVerified !== true) {
+        return toast.error('Verify your email first!')
+    } else if (role !== 'CUSTOMER') {
+        toast.error('You must sign in as user!')
+    }
     let tempAddToCart = [...addToCart]
     let tempGrandTotal = 0
     let isTicketAdded = false
