@@ -6,11 +6,11 @@ export const dashboardController = async(req: Request, res: Response, next: Next
         const { id } = req.body
         const { 
             year, 
+            year = new Date().getFullYear().toString(), 
             revenuePeriod, 
             eventsCreatedPeriod, 
             customerTransactionsPeriod, 
             transactionsPeriod ,
-            performance
         } = req.query
         //period => week, month, year
         //performance untuk grafik performa yoy

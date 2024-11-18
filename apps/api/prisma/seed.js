@@ -634,7 +634,7 @@ async function main() {
         data: {
           username,
           email,
-          password: 'password123', // Gunakan password yang aman dalam aplikasi nyata
+          password: await hashPassword('password123'), // Gunakan password yang aman dalam aplikasi nyata
           referralCode,
           isVerified: true,
           profilePictureUrl: null,
@@ -793,11 +793,13 @@ async function main() {
         totalPrice: 0, // Harga total sementara, akan diupdate nanti
         status: 'PAID', // Status transaksi, dapat disesuaikan
         userId: getUsers[Math.floor(Math.random() * 25) + 1].id, // User ID bisa disesuaikan, misal mengambil ID user dari database
+        createdAt: randomTicket.startDate,
         details: {
           create: selectedTickets.map(ticket => ({
             price: ticket.price,
             qty: Math.floor(Math.random() * 7) + 1, // Jumlah tiket yang dibeli per transaksi (1-3 tiket)
             ticketId: ticket.id,
+            createdAt: ticket.startDate
           })),
         },
       },
@@ -822,58 +824,58 @@ async function main() {
 
 
   // Create Transactions
-  const transaction1 = await prisma.transaction.create({
-    data: {
-      totalPrice: 20000,
-      status: Status.PAID,
-      userId: user1.id,
-      details: {
-        create: [
-          {
-            price: 50,
-            qty: 2,
-            ticketId: ticket1.id,
-          },
-        ],
-      },
-    },
-  });
+  // const transaction1 = await prisma.transaction.create({
+  //   data: {
+  //     totalPrice: 20000,
+  //     status: Status.PAID,
+  //     userId: user1.id,
+  //     details: {
+  //       create: [
+  //         {
+  //           price: 50,
+  //           qty: 2,
+  //           ticketId: ticket1.id,
+  //         },
+  //       ],
+  //     },
+  //   },
+  // });
 
-  const transaction2 = await prisma.transaction.create({
-    data: {
-      totalPrice: 150000,
-      status: Status.PAID,
-      userId: user2.id,
-      details: {
-        create: [
-          {
-            price: 150,
-            qty: 1,
-            ticketId: ticket2.id,
-          },
-        ],
-      },
-    },
-  });
+  // const transaction2 = await prisma.transaction.create({
+  //   data: {
+  //     totalPrice: 150000,
+  //     status: Status.PAID,
+  //     userId: user2.id,
+  //     details: {
+  //       create: [
+  //         {
+  //           price: 150,
+  //           qty: 1,
+  //           ticketId: ticket2.id,
+  //         },
+  //       ],
+  //     },
+  //   },
+  // });
 
-  // Create Reviews for Events
-  await prisma.review.create({
-    data: {
-      rating: 5,
-      feedback: 'Amazing concert! Highly recommend.',
-      userId: user1.id,
-      eventId: events[0].id,
-    },
-  });
+  // // Create Reviews for Events
+  // await prisma.review.create({
+  //   data: {
+  //     rating: 5,
+  //     feedback: 'Amazing concert! Highly recommend.',
+  //     userId: user1.id,
+  //     eventId: events[0].id,
+  //   },
+  // });
 
-  await prisma.review.create({
-    data: {
-      rating: 4,
-      feedback: 'Great exhibition, but could have been more interactive.',
-      userId: user2.id,
-      eventId: events[1].id,
-    },
-  });
+  // await prisma.review.create({
+  //   data: {
+  //     rating: 4,
+  //     feedback: 'Great exhibition, but could have been more interactive.',
+  //     userId: user2.id,
+  //     eventId: events[1].id,
+  //   },
+  // });
 
   console.log('Database seeded successfully!');
 }

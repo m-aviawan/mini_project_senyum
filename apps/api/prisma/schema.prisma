@@ -114,7 +114,6 @@ model Event {
   description  String?
   startDate    DateTime
   endDate      DateTime
-  isPaid       Boolean   @default(false)
   capacity     Int
 
   categoryId     Int
