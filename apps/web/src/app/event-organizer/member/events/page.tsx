@@ -19,6 +19,7 @@ import { useDebouncedCallback } from "use-debounce"
 export default function MemberEventsPage() {
     const router = useRouter()
     const [ eventList, setEventList ] = useState<any[]>([])
+    const [ eventListBySearch, setEventListBySearch ] = useState<any[] | null>()
     const {data: dataEventList, isPending: isPendingEventList} = useQuery({
         queryKey: ['getEventList'],
         queryFn: async() => {
@@ -47,11 +48,6 @@ export default function MemberEventsPage() {
         }
     })
     
-    useMutation({
-        mutationFn: async() => {
-            
-        }
-    })
 
     if(isPendingEventList) {
         return (
@@ -90,7 +86,6 @@ export default function MemberEventsPage() {
         
     }
     // const {mutate: mutateSearch} = useMutation({
-    //     mutationKey: [dataEventList],
     //     mutationFn: async(values: string) => {
     //         const res = await instance.get(`/dashboard?search=${values}`)
     //         const tempEventList = res.data.data.events.events.map((item: any, index: number) => {
@@ -112,7 +107,7 @@ export default function MemberEventsPage() {
     //                 isPaid: item?.isPaid ? 'Paid' : 'Free'
     //             }
     //         })
-    //         setEventList(tempEventList)
+    //         setEventListBySearch(tempEventList)
     //         return res
     //     }
     //   })
@@ -168,7 +163,21 @@ export default function MemberEventsPage() {
                     <tbody>
                     {/* row 1 */}
                     {
-                        eventList?.map((item: any, index: number) => {
+                        eventListBySearch ? (
+                            eventListBySearch?.map((item: any, index: number) => {
+                                return (
+                                    <tr key={index}>
+                                        <th>{index + 1}</th>
+                                        <td>{item?.name}</td>
+                                        <td>{item?.location}</td>
+                                        <td>{item?.isPaid}</td>
+                                        <td>{item?.totalAttendee}</td>
+                                        <td>Rp{item?.totalTransaction.toLocaleString('id-ID')}</td>
+                                    </tr>
+                                )}   
+                            )
+                            ) : (
+                            eventList?.map((item: any, index: number) => {
                             return (
                                 <tr key={index}>
                                     <th>{index + 1}</th>
@@ -180,6 +189,7 @@ export default function MemberEventsPage() {
                                 </tr>
                             )
                         })
+                        )
                     }
                     </tbody>
                 </table>

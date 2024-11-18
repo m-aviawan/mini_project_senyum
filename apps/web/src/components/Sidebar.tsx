@@ -16,6 +16,7 @@ import { MdOutlineLogin } from "react-icons/md";
 import { MdAccountBox } from "react-icons/md";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { FaEarthAmericas } from "react-icons/fa6";
+import { IoMdHome } from "react-icons/io";
 import { Input } from "./ui/input";
 import authStore from "@/zustand/authStore";
 
@@ -27,13 +28,23 @@ const Sidebar = ({debounce}: any) => {
     if(token) {
         sidebarMenuList = [
             {
+                title: 'Home',
+                href: '/',
+                icon: <IoMdHome/>
+            },
+            {
                 title: 'Explore',
                 href: '/discover',
                 icon: <FaEarthAmericas/>
-            }
+            },
         ]
     } else {
         sidebarMenuList = [
+            {
+                title: 'Home',
+                href: '/',
+                icon: <IoMdHome/>
+            },
             {
                 title: 'Explore',
                 href: '/discover',

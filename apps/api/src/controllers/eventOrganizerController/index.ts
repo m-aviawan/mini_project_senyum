@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import prisma from "@/connection/prisma";
+import prisma from "@/connection";
 import { deleteImages } from "@/utils/deleteImages";
 
 export const updateProfileEO = async(req: Request, res: Response, next: NextFunction) => {

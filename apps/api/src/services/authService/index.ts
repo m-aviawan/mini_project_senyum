@@ -1,7 +1,7 @@
-import prisma from "@/connection/prisma";
+import prisma from "@/connection";
 import { v4 as uuid } from "uuid";
 import { hashPassword } from "@/utils/hashPassword";
-import { addMonths } from "date-fns";
+import { addHours, addMonths } from "date-fns";
 import mySqlConnection from "@/connection/mysql2";
 import fs from 'fs'
 import { transporter } from "@/utils/transporter";
@@ -16,7 +16,7 @@ export const registerUserService = async({ username, email, password, referralCo
         let token, newUser, createdReferralPoint, createdReferralDiscount, eventSchedulerUniqueId;
         
         const userReferralCode = uuid().slice(0, 8)
-        let isReferralCodeCorrect = false
+        let isReferralCodeCorrect
 
         const isEmailUsed = await prisma.user.findUnique({
             where: { email }
@@ -30,15 +30,16 @@ export const registerUserService = async({ username, email, password, referralCo
             })
     
             if(referralCode) {
-                const isRefferalCodeCorrect = await tx.user.findUnique({
+                const checkReferralCode = await tx.user.findUnique({
                     where: { referralCode }
                 })
-                if(isRefferalCodeCorrect?.id) {
+                
+                if(checkReferralCode?.id) {
                     createdReferralDiscount = await tx.referralDiscount.create({
                         data: {
                             userId: newUser.id,
                             percentDiscount: 10,
-                            expiry: addMonths(new Date, 3)
+                            expiry: addHours(addMonths(new Date, 3), 7)
                         }
                     })
 
@@ -47,14 +48,14 @@ export const registerUserService = async({ username, email, password, referralCo
                     createdReferralPoint = await tx.referralPoint.create({
                         data: {
                             point: 10000,
-                            userId: isRefferalCodeCorrect.id,
-                            expiry: addMonths(new Date, 3)
+                            userId: checkReferralCode.id,
+                            expiry: addHours(addMonths(new Date, 3), 7)
                         }
                     })
         
                     await tx.user.update({
-                        where: { id: isRefferalCodeCorrect.id },
-                        data: { totalPoint: isRefferalCodeCorrect.totalPoint + 10000 }
+                        where: { id: checkReferralCode.id },
+                        data: { totalPoint: checkReferralCode.totalPoint + 10000 }
                     })
                     
                     isReferralCodeCorrect = true
@@ -65,21 +66,22 @@ export const registerUserService = async({ username, email, password, referralCo
         })
 
         if(isReferralCodeCorrect) {
-            const query = await mySqlConnection()
-            await query.query(`
-               CREATE EVENT transaction_${eventSchedulerUniqueId!}
-               ON SCHEDULE AT NOW() + INTERVAL 1 MINUTE 
-               DO
-               BEGIN
-               UPDATE referral_discounts SET isUsed = 1 WHERE id = '${createdReferralDiscount!.id}'   
-               UPDATE referral_points SET point = 0 WHERE id = '${createdReferralPoint!.id}'  
-               END 
-                `)
+            
+            // const query = await mySqlConnection()
+            // await query.query(`
+            //    CREATE EVENT transaction_${eventSchedulerUniqueId!}
+            //    ON SCHEDULE AT NOW() + INTERVAL 1 MINUTE 
+            //    DO
+            //    BEGIN
+            //    UPDATE referral_discounts SET isUsed = 1 WHERE id = '${createdReferralDiscount!.id}'   
+            //    UPDATE referral_points SET point = 0 WHERE id = '${createdReferralPoint!.id}'  
+            //    END 
+            //     `)
                 //buat model untuk point balance
 
 
             const emailBodyReferralDiscount = fs.readFileSync('./src/public/emailHTMLCollections/getReferralDiscount.html', 'utf-8')
-    
+            
             let compiledEmailBodyReferralDiscount: any = await compile(emailBodyReferralDiscount)
             compiledEmailBodyReferralDiscount = compiledEmailBodyReferralDiscount({discount: `10%`, expiry: addMonths(new Date(), 3)})
     
@@ -93,7 +95,7 @@ export const registerUserService = async({ username, email, password, referralCo
         token = await createToken({id: newUser!.id, role: newUser!.role})
         const tokenForVerifyRegister = await createTokenForVerifyRegister({id: newUser!.id, role: newUser!.role})
         if(!token) throw { msg: 'Create token failed', status: 500 }
-
+        
         const emailBodyVerifyRegister = fs.readFileSync('./src/public/emailHTMLCollections/verifyRegister.html', 'utf-8')
         const emailBodyReferralCode = fs.readFileSync('./src/public/emailHTMLCollections/getReferralCode.html', 'utf-8')
  

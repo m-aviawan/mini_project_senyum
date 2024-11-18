@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import prisma from "@/connection/prisma";
+import prisma from "@/connection";
 
 export const dashboardController = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.body
         const { 
+            take = 20,
+            skip = 0,
             year = new Date().getFullYear().toString(), 
             revenuePeriod, 
             eventsCreatedPeriod, 
@@ -25,8 +27,8 @@ export const dashboardController = async(req: Request, res: Response, next: Next
                     contains: search as string
                   }
                 },
-                take: 20,  // LIMIT 20
-                skip: 0,
+                take: Number(take),  // LIMIT 20
+                skip: Number(skip),
                 orderBy: {
                     name: 'asc'
                 },
@@ -168,8 +170,8 @@ export const eventList = async(req: Request, res: Response, next: NextFunction) 
                     contains: search as string
                   }
                 },
-                take: Number(take) as number,  // LIMIT 20
-                skip: Number(skip) as number,
+                take: Number(take),
+                skip: Number(skip),
                 orderBy: {
                     name: 'asc'
                 },

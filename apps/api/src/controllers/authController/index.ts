@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import prisma from "@/connection/prisma"
+import prisma from "@/connection"
 import { createToken, createTokenForVerifyRegister, decodeToken } from "@/utils/jsonWebToken"
 import { authenticationUserService, keepAuthService, registerUserService } from "@/services/authService"
 import { IUser } from "@/services/authService/types"

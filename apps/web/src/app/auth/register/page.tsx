@@ -55,7 +55,7 @@ export default function RegisterPage() {
             toast.success('Authentication with Google success')
             setTimeout(() => {
                 router.push('/')
-            }, 1500)
+            }, 2000)
         }, onError: () => {
             toast.error('Authentication with Google failed!')
         }

@@ -14,29 +14,60 @@ export default function Home() {
     queryFn: async() => {
       let res = await instance.get('/event')
       return res.data.data
+
     }
   })
   
   const result = authStore(state => state.res)
-  console.log(result)
   if(isPendingEvents) {
     return (
-      <main className='fixed top-0 flex flex-col gap-1 h-screen w-full items-center justify-center'>
-        <span className="loading loading-bars loading-lg"></span>
-      </main>
-    )
-  }
-  if(isErrorEvents) {
-    return (
-      <main>
-        <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
-          <h1 className='text-3xl font-bold'>Getting data failed!</h1>
-          <p className='text-base font-light'>Please refresh page</p>
+      <main className='flex flex-col gap-12 overflow-hidden'>
+        <h1 className='skeleton w-28 font-bold h-5 text-left'></h1>
+        <section className='overflow-hidden'>
+          <section className='flex w-fit'>
+            <figure className=' w-screen h-[300px] skeleton'>        
+            </figure>
+            <div className='skeleton w-screen h-[200px]'></div>
+            <div className='skeleton w-screen h-[200px]'></div>
+          </section>
         </section>
-      </main>
+          <h1 className='w-28 h-5 skeleton font-bold text-center'></h1>
+          <section className='flex justify-evenly flex-wrap gap-1 '>
+            <div  className='flex items-center justify-center text-center text-sm font-bold'>
+              <p className='w-28 h-5 skeleton drop-shadow-md'></p>
+            </div>
+          </section>
+          <section className="flex flex-col gap-5 overflow-x-scroll">
+            <h1 className="w-28 h-5 skeleton text-lg font-semibold"></h1>
+            <section className="flex gap-3 w-fit">
+                    <section className="hover:-translate-y-3 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden shadow-lg w-[250px]">
+                      <figure className="h-[150px] skeleton w-full">
+                      </figure>
+                      <section className="flex flex-col p-5 text-sm gap-2 w-full">
+                        <article className="flex flex-col gap-2">
+                          <h1 className="font-bold w-20 h-5 skeleton"></h1>
+                          <p className="text-gray-600 w-20 h-5 skeleton">
+                          </p>
+                          <p className="text-gray-600 w-20 h-5 skeleton"></p>
+                          <p className="text-gray-600 w-20 h-5 skeleton"></p>
+                          <p className="font-bold w-20 h-5 skeleton">
+                          </p>
+                        </article>
+                        <section className="flex gap-3 items-center justify-end pt-3 w-full">
+                          <h1 className='w-12 h-5 skeleton'></h1>
+                          <figure className="rounded-full h-10 w-10 skeleton overflow-hidden">
+                              
+                          </figure>
+                        </section>
+                      </section>
+                    </section>
+            </section>
+          </section>
+    </main>
     )
   }
-  if(dataEvents?.length <= 0) {
+
+  if(dataEvents?.events?.length <= 0) {
     return (
       <main>
         <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
@@ -49,32 +80,43 @@ export default function Home() {
 
   return (
     <main className='flex flex-col gap-12 overflow-hidden'>
-      {/*
-          "id": "cm385nhjr000510fzhxm8733y",
-          "name": "Rock Concert",
-          "type": "OFFLINE",
-          "locationName": "Stadium A",
-          "location": "123 Stadium St, City, USA",
-          "url": null,
-          "description": null,
-          "startDate": "2024-12-01T11:00:00.000Z",
-          "endDate": "2024-12-01T15:00:00.000Z",
-          "isPaid": false,
-          "capacity": 1000,
-          "categoryId": 1,
-      */}
-      <section className='bg-yellow-400 h-[300px] flex flex-col justify-center gap-5 px-10'>
-        <h1 className='text-black font-bold text-3xl text-left'>Top 3 Events</h1>
-        <section className='flex gap-10 w-full'>
-          <div className='bg-white rounded-md h-[150px] w-full'></div>
-          <div className='bg-white rounded-md h-[150px] w-full'></div>
-          <div className='bg-white rounded-md h-[150px] w-full'></div>
+        <section className='overflow-x-auto'>
+          <section className='flex w-fit'>
+            {
+              dataEvents?.events?.map((item: any, index: number) => {
+                return (
+                  <figure key={index}  className='bg-white w-screen h-[300px]'>
+                    <Image
+                    src={item.images[0].url}
+                    width={1000}
+                    height={1000}
+                    alt=''
+                    className='object-cover w-full h-full'
+                    />
+                  </figure>
+                )
+              })
+            }
+            <div className='bg-yellow-300 w-screen h-[200px]'></div>
+            <div className='bg-blue-300 w-screen h-[200px]'></div>
+          </section>
         </section>
-      </section>
-      {dataEvents?.map((item: any) => {
+          <h1 className='text-3xl font-bold text-center'>Categories</h1>
+          <section className='flex justify-evenly flex-wrap gap-1 border border-yellow-400'>
+            {
+              dataEvents?.eventsByCategories?.map((item: any, index: number) => {
+                return(
+                <div key={index} className=' hover:underline p-3 hover:cursor-pointer flex items-center justify-center text-center text-sm font-bold'>
+                  <p className='text-black drop-shadow-md'>{item?.name}</p>
+                </div>
+                )
+              })
+            }
+          </section>
+      {dataEvents?.eventsByCategories?.map((item: any) => {
         
         return (
-          <section className="flex flex-col gap-5">
+          <section className="flex flex-col gap-5 overflow-x-scroll">
             <h1 className="text-lg font-semibold">{item?.name}</h1>
             <section className="flex gap-3 w-fit">
               {item?.events?.map((itm: any) => {
@@ -87,7 +129,14 @@ export default function Home() {
                 return (
                   <Link href={`/events/${btoa(itm.id)}`}>
                     <section className="hover:-translate-y-3 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden shadow-lg w-[250px]">
-                      <div className="h-[150px] bg-gray-300 w-full"></div>
+                      <figure className="h-[150px] bg-gray-300 w-full">
+                        <Image 
+                        src={itm.images[0].url}
+                        width={300}
+                        height={300}
+                        alt=''
+                        />
+                      </figure>
                       <section className="flex flex-col p-5 text-sm gap-2 w-full">
                         <article className="flex flex-col gap-2">
                           <h1 className="font-bold">{itm?.name.toString().length <= 20 ? itm?.name : itm?.name.slice(0,20) + '...'}</h1>
@@ -103,8 +152,19 @@ export default function Home() {
                           </p>
                         </article>
                         <section className="flex gap-3 items-center border-t justify-end border-t-gray-300 pt-3 w-full">
-                          {/* <h1>{itm.eventOrganizer.companyName}</h1> */}
-                          <div className="rounded-full h-10 w-10 bg-red-500"></div>
+                          <h1>{itm.eventOrganizer.companyName}</h1>
+                          <figure className="rounded-full h-10 w-10 bg-gray-200 overflow-hidden">
+                              {
+                                itm.eventOrganizer.profilePictureUrl && (
+                                  <Image 
+                                  src={itm.eventOrganizer.profilePictureUrl}
+                                  width={100}
+                                  height={100}
+                                  alt=''
+                                  />
+                                )
+                              }
+                          </figure>
                         </section>
                       </section>
                     </section>
@@ -115,32 +175,6 @@ export default function Home() {
           </section>
         );
       })}
-      <section className='flex gap-5'>
-        <div className='bg-blue-900 rounded-2xl h-[400px] w-[280px] drop-shadow-lg'></div>
-        <div className='bg-blue-900 rounded-2xl h-[400px] w-[280px] drop-shadow-lg'></div>
-        <div className='bg-blue-900 rounded-2xl h-[400px] w-[280px] drop-shadow-lg'></div>
-        <div className='bg-blue-900 rounded-2xl h-[400px] w-[280px] drop-shadow-lg'></div>
-      </section>
-      <section className='flex gap-5'>
-        <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
-        <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
-        <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
-        <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
-        <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
-        <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
-        <div className='bg-green-700 rounded-full h-[100px] w-[100px]'></div>
-      </section>
-      <section className='flex gap-5'>
-        {
-          dataEvents.map((item: any, index: number) => {
-            return(
-            <div key={index} className='bg-teal-700 rounded-xl h-[120px] w-[120px] p-3 flex items-end justify-center text-center text-sm font-bold'>
-              <p className='text-white drop-shadow-md'>{item?.name}</p>
-            </div>
-            )
-          })
-        }
-      </section>
     </main>
   )
 }

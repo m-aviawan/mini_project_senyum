@@ -92,12 +92,12 @@ const MemberProfileInformationPage = () => {
           {
             ({setFieldValue}) => (
             <Form>
-            <section id='user-information' className='flex flex-col gap-10 text-[15px] px-12'>
+            <section id='user-information' className='flex flex-col gap-10 text-[15px] px-4 md:px-12'>
               <article className='flex flex-col gap-1'>
                 <h1 className='text-gray-600 font-semibold'>Profile Picture</h1>
                 <p className='text-gray-500'>Your avatar and cover photo are the first images you'll see on your profile account.</p>
               </article>
-              <section className='flex items-center gap-12'>
+              <section className='flex flex-col md:flex-row items-center gap-12'>
                 <figure className='flex items-center justify-center h-[120px] w-[120px] rounded-full bg-gray-200 border border-yellow-400 overflow-hidden'>
                 {
                     imagePreview.length > 0 ? (
@@ -129,7 +129,7 @@ const MemberProfileInformationPage = () => {
                   }
                   }/>
               </section>
-              <section  className='grid grid-cols-2 gap-10'>
+              <section  className='flex flex-col lg:grid grid-cols-2 gap-10'>
                 <section className='flex flex-col gap-1'>
                   <h1 className='text-gray-600 font-semibold'>Email</h1>
                   <Field as={Input} name='email' type="email" disabled/>

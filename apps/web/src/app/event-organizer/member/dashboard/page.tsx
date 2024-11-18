@@ -132,7 +132,7 @@ export default function DashboardPage() {
       <section className='gap-10 flex flex-col justify-between p-5 shadow-lg w-full bg-white h-[200px]'>
         <article>
           {/* <h1 className='text-3xl font-semibold'>{dataDashboard?.getEventsCount}</h1> */}
-          <h1 className='text-3xl font-semibold'>{dataDashboard?.events?.events?.length ? dataDashboard?.events?.event?.length : '-'}</h1>
+          <h1 className='text-3xl font-semibold'>{dataDashboard?.events?.events?.length}</h1>
           <h1 className='text-lg font-light'>Events Created</h1>
         </article>
         <div className="flex justify-between items-center">
