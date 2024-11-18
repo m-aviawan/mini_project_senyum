@@ -1,5 +1,5 @@
 import { NextFunction, Response, Request } from "express"
-import prisma from "@/connection/prisma"
+import prisma from "@/connection"
 
 export const createReview = async(req: Request, res: Response, next: NextFunction) => {
     try {

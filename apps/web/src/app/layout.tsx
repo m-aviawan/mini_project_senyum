@@ -27,7 +27,7 @@ export default function RootLayout({
           <AuthProvider>
             <NavProvider>
               <Toaster
-                position="top-center"
+                position="bottom-right"
                 reverseOrder={false}
               />
                 <main>

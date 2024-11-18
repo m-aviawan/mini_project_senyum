@@ -35,8 +35,7 @@ const EOMemberProfileInformationPage = () => {
 
   const { mutate: mutateUpdateEO, isPending: isPendingUpdateEO } = useMutation({
     mutationFn: async(fd: FormData) => {
-      const res = await instance.patch('/event-organizer', fd)
-      toast.success('Update profile success')
+      const res = await instance.patch('/user', fd)
       return res
     },
     onSuccess: (res) => {
@@ -70,7 +69,7 @@ const EOMemberProfileInformationPage = () => {
       }}
       validationSchema={updateProfileEOValidationSchema}
       onSubmit={(values) => {
-        toast.loading('asasa')
+        console.log(values)
         const fd = new FormData()
         fd.append('email', values.email)
         fd.append('pic', values.pic)
@@ -132,7 +131,7 @@ const EOMemberProfileInformationPage = () => {
                   <ErrorMessage name='address' component={'div'} className="text-red-600 text-xs"/>
                 </section>
               </section>
-              <Button type='submit' className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</Button>
+              <button onClick={() => console.log('aaaaaaaaaaa')} type="submit" className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</button>
             </section>
             </Form>
             )

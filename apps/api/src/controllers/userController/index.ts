@@ -1,4 +1,4 @@
-import prisma from "@/connection/prisma"
+import prisma from "@/connection"
 import { cloudinaryUpload } from "@/utils/cloudinary";
 import { Request, Response, NextFunction } from "express"
 
@@ -73,7 +73,7 @@ export const updateProfile = async(req: Request, res: Response, next: NextFuncti
                         username,
                         phoneNumber,
                         address,
-                        birthDate: new Date(birthDate),
+                        birthDate,
                         gender,
                         profilePictureUrl: imagesUploaded
                     }
@@ -95,7 +95,7 @@ export const updateProfile = async(req: Request, res: Response, next: NextFuncti
                         username,
                         phoneNumber,
                         address,
-                        birthDate: new Date(birthDate),
+                        birthDate,
                         gender
                     }
                 })

@@ -22,10 +22,10 @@ const Header = () => {
   const setLogOut = authStore(state => state.setLogOut)
   const role = authStore(state => state.role)
   const imageUrl: string = authStore(state => state.profilePictureUrl)
-  const [logOutConfirmation, setLogOutConfirmation] = useState(false)
+  
   const router = useRouter()
   const pathname = usePathname()
-//nyimpen data diglobal state
+
   const {mutate: mutateSearch} = useMutation({
     mutationFn: async(values: string) => {
         const res = await instance.get(`search?event=${''}&eo=${''}`)

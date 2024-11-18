@@ -13,6 +13,16 @@ const nextConfig = {
                 hostname: 'res.cloudinary.com',
                 pathname: '**'
             },
+            {
+                protocol: 'https',
+                hostname: 'i0.wp.com',
+                pathname: '**'
+            },
+            {
+                protocol: 'https',
+                hostname: 'assets.loket.com',
+                pathname: '**'
+            },
         ]
     }
 

@@ -1,4 +1,4 @@
-import prisma from "@/connection/prisma"
+import prisma from "@/connection"
 import { cloudinaryUpload } from "@/utils/cloudinary"
 import { addWeeks, isAfter, isBefore } from "date-fns"
 import { NextFunction, Request, Response } from "express"
@@ -146,22 +146,37 @@ export const getEvents = async(req: Request, res: Response, next: NextFunction) 
         }
 
         let { take = 20, skip = 0, name = '' }: any = req.query
-        let events;
-        events = await prisma.category.findMany({
+        let eventsByCategories, events;
+        events = await prisma.event.findMany({
+            take: 20,
+            skip: 0,
+            include: {
+                images: true
+            }
+        })
+        eventsByCategories = await prisma.category.findMany({
             // skip,
             // take,
             include: {
-                events: true
+                events: {
+                    include: {
+                        images: true,
+                        eventOrganizer: true
+                    }
+                }
             }
         })
-
         if(name?.length >= 3) {
-            events = await prisma.event.findMany({
+            eventsByCategories = await prisma.event.findMany({
                 where: { 
                     name: {
                         startsWith: '%',
                         endsWith: '%'
                     }
+                },
+                include: {
+                    eventOrganizer: true,
+                    images: true
                 },
                 skip,
                 take
@@ -171,7 +186,10 @@ export const getEvents = async(req: Request, res: Response, next: NextFunction) 
         res.status(200).json({
             error: false,
             message: 'Get events success',
-            data: events
+            data: {
+                events,
+                eventsByCategories
+            }
         })
     } catch (error) {
         next(error)
