@@ -43,7 +43,7 @@ const ResetPasswordPage = ({params}: any) => {
   return (
     <main className='flex flex-col gap-10 justify-center items-center p-8'>
         <hgroup className='flex flex-col gap-2 items-center'>
-            <h1 className='text-5xl font-bold'>Reset Password</h1>
+            <h1 className='text-3xl font-bold'>Reset Password</h1>
             <p className='text-lg font-light'>Enter your new password and keep your new password for sign in.</p>
         </hgroup>
         <Formik

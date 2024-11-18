@@ -66,9 +66,9 @@ export default function AuthPage() {
         }
     })
   return (
-    <main className='bg-white gap-2 h-screen flex justify-center items-center'>
+    <main className='bg-white gap-2 flex justify-center items-center'>
         <section className='flex flex-col gap-3 px-8 sm:px-16 md:px-24 py-5 w-full md:w-[70%]'>
-            <h1 className='text-5xl font-bold text-center'>Log in</h1>
+            <h1 className='text-3xl font-bold text-center'>Log in</h1>
             <Formik
             initialValues={{
                 email: '',
@@ -102,7 +102,7 @@ export default function AuthPage() {
                     Don't have account? Please <Link href='/auth/register'><span className='text-blue-600 hover:text-blue-800 font-bold'>Sign up</span></Link>
                 </article>
                 <article className='text-[12px] mt-[-8px]'>
-                    <Link href='/auth/forgot-password'><span className='text-red-600 hover:underline transition-[0.5s] hover:font-bold'>Forgot password</span></Link>
+                    <Link href='/auth/forgot-password'><span className='text-red-600 hover:underline text-right transition-[0.5s] hover:font-bold'>Forgot password</span></Link>
                 </article>
             </section>
             <div className='flex items-center justify-center my-5'>

@@ -114,6 +114,7 @@ model Event {
   description  String?
   startDate    DateTime
   endDate      DateTime
+  isPaid       Boolean   @default(true)
   capacity     Int
 
   categoryId     Int
@@ -190,7 +191,7 @@ model Transaction {
 
   userId  String
   user    User   @relation(fields: [userId], references: [id])
-
+  
   details TransactionDetail[]
 
   createdAt DateTime  @default(now())

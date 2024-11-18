@@ -71,7 +71,9 @@ export const registerUserService = async({ username, email, password, referralCo
                ON SCHEDULE AT NOW() + INTERVAL 1 MINUTE 
                DO
                BEGIN
-                UPDATE referral_discounts SET isUsed = 1 WHERE id = '${createdReferralDiscount!.id}'   
+               UPDATE referral_discounts SET isUsed = 1 WHERE id = '${createdReferralDiscount!.id}'   
+               UPDATE referral_points SET point = 0 WHERE id = '${createdReferralPoint!.id}'  
+               END 
                 `)
                 //buat model untuk point balance
 

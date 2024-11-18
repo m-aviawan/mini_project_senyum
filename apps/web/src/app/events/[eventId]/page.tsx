@@ -78,6 +78,7 @@ const {
     queryKey: ['getEventDetails'],
     queryFn: async() => {
         let res = await instance.get(`/event/${eventId}`)
+        console.log(res)
         return res.data.data
     }
 })
@@ -90,6 +91,7 @@ const {
     queryKey: ['getReviewByEvent'],
     queryFn: async() => {
         let res = await instance.get(`/review/${eventId}`)
+        console.log(res)
         return res.data.data
     }
 })
@@ -172,16 +174,6 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
     return (
       <main className='fixed top-0 flex flex-col gap-1 h-screen w-full items-center justify-center'>
         <span className="loading loading-bars loading-lg"></span>
-      </main>
-    )
-  }
-  if(isErrorEventDetails || isErrorReviewByEvent) {
-    return (
-      <main>
-        <section className='fixed top-0 gap-1 flex flex-col justify-center items-center h-screen w-full'>
-          <h1 className='text-3xl font-bold'>Getting data failed!</h1>
-          <p className='text-base font-light'>Please refresh page</p>
-        </section>
       </main>
     )
   }
@@ -286,7 +278,7 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
             <section id='tickets' className='col-[1/3] flex flex-col gap-10'>
             <h1 className='text-3xl font-bold flex items-center gap-2'>Tickets <IoTicketSharp className='text-yellow-400'/></h1>
                {
-                eventDetailsTickets.map((item: any, index: number) => {
+                eventDetailsTickets?.map((item: any, index: number) => {
                     const qtyIndex = addToCart.indexOf(addToCart[`${item.id}`])
 
                     return (
@@ -358,7 +350,7 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
         </section>
         <section className='flex flex-col gap-10'>
             <h1 className='text-3xl font-bold flex items-center gap-2'>Ratings and Reviews <MdOutlineStar className='text-yellow-400'/></h1>
-            <section className='flex flex-col gap-10 drop-shadow-lg border border-gray-100 py-5 px-10 rounded-xl bg-white'>
+            {/* <section className='flex flex-col gap-10 drop-shadow-lg border border-gray-100 py-5 px-10 rounded-xl bg-white'>
                 {
                     dataReviewByEvent.map((item: any, index: number) => {
                         return (
@@ -380,7 +372,7 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
                         )
                     })
                 }
-            </section>
+            </section> */}
             <Formik
             initialValues={{
                 comments: '',

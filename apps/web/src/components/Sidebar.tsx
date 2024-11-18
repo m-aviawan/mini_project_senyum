@@ -16,31 +16,42 @@ import { MdOutlineLogin } from "react-icons/md";
 import { MdAccountBox } from "react-icons/md";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { FaEarthAmericas } from "react-icons/fa6";
+import { Input } from "./ui/input";
+import authStore from "@/zustand/authStore";
 
-const Sidebar = () => {
 
-    const sidebarMenuList = [
-        {
-            title: 'Explore',
-            href: '/discover',
-            icon: <FaEarthAmericas/>
-        },
-        {
-            title: 'Create Event',
-            href: '#',
-            icon: <FaRegCalendarAlt/>
-        },
-        {
-            title: 'Sign In',
-            href: '/auth',
-            icon: <MdOutlineLogin/>
-        },
-        {
-            title: 'Sign Up',
-            href: '/auth/register',
-            icon: <MdAccountBox/>
-        },
-    ]
+const Sidebar = ({debounce}: any) => {
+
+    const token = authStore(state => state.token)
+    let sidebarMenuList;
+    if(token) {
+        sidebarMenuList = [
+            {
+                title: 'Explore',
+                href: '/discover',
+                icon: <FaEarthAmericas/>
+            }
+        ]
+    } else {
+        sidebarMenuList = [
+            {
+                title: 'Explore',
+                href: '/discover',
+                icon: <FaEarthAmericas/>
+            },
+            {
+                title: 'Sign In',
+                href: '/auth',
+                icon: <MdOutlineLogin/>
+            },
+            {
+                title: 'Sign Up',
+                href: '/auth/register',
+                icon: <MdAccountBox/>
+            },
+        ]
+
+    }
 
     return (
         <NavigationMenu >
@@ -65,6 +76,7 @@ const Sidebar = () => {
                                 )
                             })
                         }
+                        <li className='p-2'><Input type="text" placeholder="Search" onChange={e => debounce(e.target.value)}/></li>
                     </ul>
                 </NavigationMenuContent>
                 </NavigationMenuItem>

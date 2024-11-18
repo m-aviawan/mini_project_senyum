@@ -2,7 +2,6 @@
 
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { FaEarthAmericas } from "react-icons/fa6";
-import { usePathname } from "next/navigation";
 import { IoSearchCircle } from "react-icons/io5";
 import Image from "next/image";
 import logo from "@/public/assets/images/logo.png"
@@ -16,7 +15,7 @@ import authStore from "@/zustand/authStore";
 import { useState } from "react";
 import AlertDialogLogOut from "./AlertDialogLogOut";
 import { useRouter } from "next/navigation";
-
+import { usePathname } from "next/navigation";
 
 const Header = () => {
   const token = authStore(state => state.token)
@@ -25,19 +24,21 @@ const Header = () => {
   const imageUrl: string = authStore(state => state.profilePictureUrl)
   const [logOutConfirmation, setLogOutConfirmation] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
 //nyimpen data diglobal state
   const {mutate: mutateSearch} = useMutation({
     mutationFn: async(values: string) => {
-        await instance.get(`search?event=${''}&eo=${''}`)
+        const res = await instance.get(`search?event=${''}&eo=${''}`)
+        return res
     }
   })
 
   const debounce = useDebouncedCallback((values: string) => {
+    router.push(`/discover?search=${values}`)
     mutateSearch(values)
-  }, 2000)
+  }, 1500)
 
-  const pathName = usePathname()
-  if( pathName === '/auth' || pathName === '/auth/register') {
+  if( pathname === '/auth' || pathname === '/auth/register') {
     return (
       <></>
     )
@@ -45,9 +46,9 @@ const Header = () => {
     return (
           <nav className="flex items-center justify-between bg-white px-5 py-2 border-b border-b-gray-300">
             <aside className="lg:hidden">
-              <Sidebar />
+              <Sidebar debounce={debounce}/>
             </aside>
-            <section className="w-[40%] flex items-center gap-3">
+            <section className="w-[40%] lg:flex items-center gap-3 hidden">
               <Link href="/">
                 <figure className=" text-3xl font-bold flex justify-center items-end w-[50px] h-[50px]">
                   <Image
@@ -61,25 +62,15 @@ const Header = () => {
               <Input type="text" placeholder="Search" onChange={e => debounce(e.target.value)}/>
             </section>
             <section className="flex gap-2 justify-center items-center">
-              {
-                role === 'EO' && (
-                <Link href='/event-organizer/member/events/create'>
-                  <div className="flex gap-1 items-center py-2 px-5 text-sm font-semibold rounded-md hover:bg-gray-300 bg-white text-black">
-                    <FaRegCalendarAlt />
-                    <p>Create event</p>
-                  </div>
-                </Link>
-                )
-              }
               <Link href='/discover'>
-              <div className="flex gap-1 items-center py-2 px-5 text-sm font-semibold rounded-md hover:bg-gray-300 bg-white text-black">
+              <div className="hidden lg:flex gap-1 items-center py-2 px-5 text-sm font-semibold rounded-md hover:bg-gray-300 bg-white text-black">
                 <FaEarthAmericas/>
                 <p>Explore</p>
               </div>
               </Link>
               {
                 !token ? (
-                  <section className="flex gap-2 items-center justify-center">
+                  <section className="hidden lg:flex gap-2 items-center justify-center">
                     <Link href='/auth'>
                       <button className="py-2 px-5 text-sm font-semibold rounded-md hover:bg-gray-300 border border-gray-300 bg-white text-black">Sign in</button>
                     </Link>

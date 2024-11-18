@@ -389,128 +389,131 @@ const dataEo = [
   }
 ]
 
-// const eventImage = [
-//   {
-//     url: 'https://i0.wp.com/busestoconcerts.com/wp-content/uploads/2017/11/concert-banner.jpg?fit=2436%2C814&ssl=1',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/HCSYk_1731574796549508.png',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20240906150431_66dab78f5e1ea.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/K7TEz_1724747212487826.png',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241107190029_672cabdd5e785.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/Kkgqk_1726144786979182.jpeg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241024161741_671a10b50929c.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241114204032_6735fdd0b89a4.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241106175337_672b4ab18a24b.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241007155148_6703a124efb7e.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241031100444_6722f3cc920b9.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241110151622_67306bd623604.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241113172126_67347da6bad18.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241026225326_671d107629419.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241024205924_671a52bc68d4b.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241107104812_672c387cdb9c5.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20240912130049_66e2839150dce.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241024102300_6719bd944f39c.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20240919133431_66ebc5f757b51.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241024102300_6719bd944f39c.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241006091527_6701f2bf28fee.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241027102433_671db27142f67.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20240912133611_66e28bdbae884.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241005123502_6700d006ac6b7.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20221230142038_63ae9146a9f68.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241110124826_6730492aa46be.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241017150214_6710c4866ae0f.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/XS6XW_1730453108607371.jpeg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20241029131528_67207d8061df8.jpg',
-//     directory: '',
-//   },
-//   {
-//     url: 'https://assets.loket.com/neo/production/images/banner/20240503020209.png',
-//     directory: '',
-//   },
-// ]
+const eventImage = [
+  [
+    {
+      url: 'https://i0.wp.com/busestoconcerts.com/wp-content/uploads/2017/11/concert-banner.jpg?fit=2436%2C814&ssl=1',
+      eventId: 'cm3mjawgx000w1062o83k1mqi'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/HCSYk_1731574796549508.png',
+      eventId: 'cm3mjawgx000x10625rkj72ef'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20240906150431_66dab78f5e1ea.jpg',
+      eventId: 'cm3mjawgx000y1062eg13c8uv'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/K7TEz_1724747212487826.png',
+      eventId: 'cm3mjawgx000z1062ld2r6pr7'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241107190029_672cabdd5e785.jpg',
+      eventId: 'cm3mjawgx00101062ng7aitvp'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/Kkgqk_1726144786979182.jpeg',
+      eventId: 'cm3mjawgx00111062a3bfu7iu'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241024161741_671a10b50929c.jpg',
+      eventId: 'cm3mjawgx00121062vpb4bq6a'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241114204032_6735fdd0b89a4.jpg',
+      eventId: 'cm3mjawgx001310621e2818ul'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241106175337_672b4ab18a24b.jpg',
+      eventId: 'cm3mjawgx00141062etfw7o4m'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241007155148_6703a124efb7e.jpg',
+      eventId: 'cm3mjawgx00151062l95rjn9b'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241031100444_6722f3cc920b9.jpg',
+      eventId: 'cm3mjawgx00161062jkdlu565'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241110151622_67306bd623604.jpg',
+      eventId: 'cm3mjawgx00171062381uv6xh'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241113172126_67347da6bad18.jpg',
+      eventId: 'cm3mjawgx001810620svd7ltq'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241026225326_671d107629419.jpg',
+      eventId: 'cm3mjawgx00191062o2t65efi'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241024205924_671a52bc68d4b.jpg',
+      eventId: 'cm3mjawgx001a1062x4uqonwk'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241107104812_672c387cdb9c5.jpg',
+      eventId: 'cm3mjawgx001b1062hrra67uq'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20240912130049_66e2839150dce.jpg',
+      eventId: 'cm3mjawgx001c1062sw1u2wmu'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241024102300_6719bd944f39c.jpg',
+      eventId: 'cm3mjawgy001d10625wx6rk4t'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20240919133431_66ebc5f757b51.jpg',
+      eventId: 'cm3mjawgy001e1062za9xhb02'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241024102300_6719bd944f39c.jpg',
+      eventId: 'cm3mjawgy001f1062p6dxd33y'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241006091527_6701f2bf28fee.jpg',
+      eventId: 'cm3mjawgy001g10625jwzuzfw'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241027102433_671db27142f67.jpg',
+      eventId: 'cm3mjawgy001h1062qjn8zbt2'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20240912133611_66e28bdbae884.jpg',
+      eventId: 'cm3mjawgy001i1062x0i6zhk9'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241005123502_6700d006ac6b7.jpg',
+      eventId: 'cm3mjawgy001j106231zl47rp'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20221230142038_63ae9146a9f68.jpg',
+      eventId: 'cm3mjawgy001k10622i9vm1yo'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241110124826_6730492aa46be.jpg',
+      eventId: 'cm3mjawgy001l1062j8nhsov3'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241017150214_6710c4866ae0f.jpg',
+      eventId: 'cm3mjawgy001m1062ww214p8c'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/XS6XW_1730453108607371.jpeg',
+      eventId: 'cm3mjawgy001n1062q2iitpx3'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20241029131528_67207d8061df8.jpg',
+      eventId: 'cm3mjawgy001o10628hplbyi8'
+    },
+    {
+      url: 'https://assets.loket.com/neo/production/images/banner/20240503020209.png',
+      eventId: 'cm3mjawgy001p1062w7prozwi'
+    }
+  ]
+  
+]
 
 async function main() {
     // Create Categories
