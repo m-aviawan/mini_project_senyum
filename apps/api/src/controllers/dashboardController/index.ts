@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "@/connection";
+import { endOfDay, startOfDay } from "date-fns";
 
 export const dashboardController = async(req: Request, res: Response, next: NextFunction) => {
     try {
@@ -242,3 +243,71 @@ export const eventList = async(req: Request, res: Response, next: NextFunction) 
     next(error)
   }
 }
+
+// export const getUserEventData = async(req: Request, res: Response, next: NextFunction) => {
+//   const { id, role } = req.body
+  
+//   const findEvent = await prisma.event.findMany({
+//     where: {
+//       eoId: id
+//     }
+//   })
+
+  
+//   const findUserTransaction = await prisma.transaction.groupBy({
+//     by: ['userId'],
+//     where: {
+//       eoId: id
+//     }
+//   })
+
+//   const dataAttendee = findUserTransaction.map((item) => {
+//     return {
+//       userId: item.userId
+//     }
+//   })
+
+//   const dataTotalTransaction = await prisma.transaction.findMany({
+//     where: {
+//       eoId: id
+//     }
+//   })
+
+//   const totalAmount = await prisma.transaction.aggregate({
+//     _sum: {
+//       totalPrice: true
+//     }, where: {
+//       eoId: id
+//     }
+//   })
+
+//   const startDay = startOfDay(1)
+//   const endDay = endOfDay(1)
+
+//   const dailyStatistic = await prisma.transaction.groupBy({
+//     by: ['createdAt'],
+//     where: {
+//       createdAt: {
+//         gte: startDay,
+//         lte: endDay
+//       },
+//       eoId: id
+//     },
+//     _sum: {
+//       totalPrice: true
+//     }
+//   })
+// }
+ 
+// const startWeek = startOfWeek(new Date(), { weekStartsOn: 1 })
+// const endWeek = endOfWeek(new Date)
+
+// const weeklyStatistic = await prisma.transaction.groupBy({
+//   by: ['createdAt'],
+//   where: {
+//     createdAt: {
+//       gte: 
+//     },
+//     eoId: id
+//   }
+// })

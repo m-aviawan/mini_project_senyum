@@ -65,7 +65,9 @@ model EventOrganizer {
   isVerified  Boolean @default(false)
   pic         String
   role        String  @default("EO")
+
   events      Event[]
+  transactions Transaction[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -122,6 +124,7 @@ model Event {
   eoId           String
   eventOrganizer EventOrganizer @relation(fields: [eoId], references: [id])
 
+  transactions  Transaction[]
   tickets      EventTicket[]
   images       EventImage[]
   reviews      Review[]
@@ -191,6 +194,10 @@ model Transaction {
 
   userId  String
   user    User   @relation(fields: [userId], references: [id])
+  eoId    String
+  eo      EventOrganizer @relation(fields: [eoId], references: [id])
+  eventId String
+  events  Event @relation(fields: [eventId], references: [id])
   
   details TransactionDetail[]
 

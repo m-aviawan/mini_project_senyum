@@ -1,16 +1,7 @@
 import { Request, Response, NextFunction } from "express"
-import prisma from "@/connection"
-import { createToken, createTokenForVerifyRegister, decodeToken } from "@/utils/jsonWebToken"
-import { authenticationUserService, keepAuthService, registerUserService } from "@/services/authService"
-import { IUser } from "@/services/authService/types"
-import fs from 'fs'
-import { compile } from "handlebars"
-import { transporter } from "@/utils/transporter"
-import { v4 as uuid } from "uuid"
-import { hashPassword  } from "@/utils/hashPassword"
-import { addDays, addMonths } from "date-fns"
-import mySqlConnection from "@/connection/mysql2"
-import { JwtPayload } from "jsonwebtoken"
+import { createToken } from "@/utils/jsonWebToken"
+import { authenticationUserService, authWithGoogleService, forgotPasswordService, keepAuthService, registerEOService, registerUserService, resetPasswordService } from "@/services/authService"
+import { verifyRegisterService } from "../../services/authService"
 
 export const registerUser = async(req: Request, res: Response, next: NextFunction) => {
     try {
@@ -85,53 +76,18 @@ export const verifyRegister = async(req: Request, res: Response, next: NextFunct
     try {
         const { id, role } = req.body
 
-        let user, username, isGoogleRegistered, profilePictureUrl;
-        if(role === 'CUSTOMER') {
-            user = await prisma.user.findUnique({
-                where: {
-                    id
-                }
-            })
-            if(!user?.id) throw { msg: 'User not found!', status: 406 }
-            if(user!.isVerified) throw { msg: `You're already verified!`, status: 406 }
-            await prisma.user.update({
-                where: { id },
-                data: { isVerified: true } 
-            })
-            username = user?.username
-            isGoogleRegistered = user?.isGoogleRegistered
-            profilePictureUrl = user?.profilePictureUrl
-        } else if(role === 'EO') {
-            user = await prisma.eventOrganizer.findUnique({
-                where: {
-                    id
-                }
-            })
-            if(!user?.id) throw { msg: 'User not found!', status: 406 }
-            if(user!.isVerified) throw { msg: `You're already verified!`, status: 406 }
-            await prisma.eventOrganizer.update({
-                where: { id },
-                data: { isVerified: true }
-            })
-            username = user?.companyName
-            isGoogleRegistered = false
-            profilePictureUrl = user?.profilePictureUrl
-        } else {
-            throw { msg: 'Role not found!', status: 406 }
-        }
-        
-        const token = await createToken({ id, role: user!.role })
+        const userData = await verifyRegisterService({ id, role })
     
         res.status(200).json({
             error: false,
             message: 'Verify register success',
             data: {
-                token,
+                token: userData.token,
                 role,
-                username,
+                username: userData.username,
                 isVerified: true,
-                isGoogleRegistered,
-                profilePictureUrl
+                isGoogleRegistered: userData.isGoogleRegistered,
+                profilePictureUrl: userData.profilePictureUrl
             }
         })
     } catch (error) {
@@ -143,43 +99,14 @@ export const registerEO = async(req: Request, res: Response, next: NextFunction)
     try {
         const { companyName, phoneNumber, address, email, pic, password } = req.body
         
-        if(!companyName || !phoneNumber || !address || !email || !pic || !password) throw { msg: 'Field must be filled!', status: 406 }
-        if(!email.includes('@')) throw { msg: 'Email invalid!' }
-        const emailBodyVerifyRegisterForEO = fs.readFileSync('./src/public/emailHTMLCollections/verifyRegisterForEO.html', 'utf-8')
-        
-        
-        const newEO = await prisma.eventOrganizer.create({
-            data: {
-                companyName,
-                phoneNumber,
-                email,
-                pic,
-                password: await hashPassword(password),
-                address
-            }
-        })
-        
-        
-        const token = await createToken({ id: newEO.id, role: newEO.role })
-        const tokenForVerifyRegister = await createTokenForVerifyRegister({ id: newEO.id, role: newEO.role })
-    
-        
-        let compiledEmailBodyVerifyRegisterForEO: any = await compile(emailBodyVerifyRegisterForEO)
-        compiledEmailBodyVerifyRegisterForEO = compiledEmailBodyVerifyRegisterForEO({ companyName, url: `http://localhost:3000/verify-register-eo/${tokenForVerifyRegister}` })
-    
-        
-        await transporter.sendMail({
-            to: email,
-            subject: 'Verify Register [Spiral Tickets]',
-            html: compiledEmailBodyVerifyRegisterForEO
-        })
+        const newEO = await registerEOService({ companyName, phoneNumber, address, email, pic, password })
     
         res.status(201).json({
             error: false,
             message: 'Register Success',
             data: {
                 companyName,
-                token,
+                token: newEO.token,
                 role: newEO.role,
                 isVerified: newEO.isVerified,
                 isGoogleRegistered: false,
@@ -194,68 +121,14 @@ export const registerEO = async(req: Request, res: Response, next: NextFunction)
 export const authWithGoogle = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.body
-        const checkUser = await prisma.user.findUnique({
-            where : {
-                email
-            }
-        })
-        let userData;
 
-        if(!checkUser?.id) {
-            const password = '12345678'
-            const userReferralCode = uuid().slice(0, 8)
-                
-            const newUser = await prisma.user.create({
-                data: { 
-                    email, 
-                    password: await hashPassword(password), 
-                    referralCode: userReferralCode,
-                    username: 'Guest',
-                    isGoogleRegistered: true,
-                    isVerified: true,
-                    role: 'CUSTOMER'
-                }
-            })
-    
-            userData = {
-                username: newUser?.username,
-                role: newUser?.role,
-                id: checkUser?.id,
-                isVerified: newUser?.isVerified,
-                isGoogleRegistered: newUser?.isGoogleRegistered,
-                profilePictureUrl: newUser?.profilePictureUrl,
-            }
-        
-            const emailBodyReferralCode = fs.readFileSync('./src/public/emailHTMLCollections/getReferralCode.html', 'utf-8')
-        
-            let compiledEmailBodyReferralCode: any = await compile(emailBodyReferralCode)
-            compiledEmailBodyReferralCode = compiledEmailBodyReferralCode({referralCode: userReferralCode, username: 'there'})
-    
-            await transporter.sendMail({
-                to: email,
-                subject: 'Referral Code [Spiral Tickets]',
-                html: compiledEmailBodyReferralCode
-            })
-        } else if (checkUser?.id) {
-            userData = {
-                username: checkUser?.username,
-                role: checkUser?.role,
-                isVerified: checkUser?.isVerified,
-                id: checkUser?.id,
-                isGoogleRegistered: checkUser?.isGoogleRegistered,
-                profilePictureUrl: checkUser?.profilePictureUrl,
-            }
-        } else {
-            throw { msg: 'Email or Password invalid! Try again', status: 406 }
-        }
-
-        const token = await createToken({id: userData?.id, role: userData?.role })
+        const userData = await authWithGoogleService({ email })
 
         res.status(200).json({
             error: false,
             message: 'Authentication with Google success',
             data: {
-                token,
+                token: userData?.token,
                 username: userData?.username,
                 role: userData?.role,
                 isVerified: userData?.isVerified,
@@ -272,26 +145,8 @@ export const authWithGoogle = async(req: Request, res: Response, next: NextFunct
 export const forgotPassword = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.body
-        const user = await prisma.user.findUnique({
-            where : {
-                email,
-                isGoogleRegistered: false
-            }
-        })
-    
-        if(!user?.id) throw { msg: 'User not found!' }
-    
-        const token = await createToken({id: user?.id, role: user?.role})
-    
-        const emailForgotPassword = fs.readFileSync("./src/public/emailHTMLCollections/forgotPassword.html", 'utf-8')
-        let compiledEmailForgotPassword: any = await compile(emailForgotPassword)
-        compiledEmailForgotPassword = compiledEmailForgotPassword({username: user?.username, url: `http://localhost:3000/auth/reset-password/${token}/${user?.countResetPass}`})
-    
-        await transporter.sendMail({
-            to: email,
-            subject: 'Reset Password [Spiral Ticket]',
-            html: compiledEmailForgotPassword
-        })
+        
+        await forgotPasswordService({ email })
         
         res.status(200).json({
             error: false,
@@ -308,25 +163,7 @@ export const resetPassword = async(req: Request, res: Response, next: NextFuncti
         const { token } = req.params
         const { countResetPass, password } = req.body
         
-        const decodedToken: any = await decodeToken(token)
-        const isResetPassNeverUsed = await prisma.user.findUnique({
-            where: {
-                id: decodedToken?.data?.id,
-                countResetPass: Number(countResetPass)
-            }
-        })
-        
-        if(!isResetPassNeverUsed?.id) throw { msg: 'URL is expired!', status: 406 }
-
-        await prisma.user.update({
-            where: {
-                id: isResetPassNeverUsed?.id
-            },
-            data: {
-                password: await hashPassword(password),
-                countResetPass: Number(isResetPassNeverUsed.countResetPass) + 1
-            }
-        })
+        await resetPasswordService({ token, countResetPass, password })
         res.status(200).json({
             error: false,
             message: 'Reset password success',

@@ -389,7 +389,11 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
             }}
             validationSchema={reviewValidationSchema}
             onSubmit={(values) => {
-                mutateCreateReview(values)
+                if(isVerified) {
+                    mutateCreateReview(values)
+                } else {
+                    toast.error('Verify your email first!')
+                }
             }}
             >
                 {
