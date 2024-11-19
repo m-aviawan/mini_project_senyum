@@ -1,0 +1,264 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "mysql"
+//   url      = env("DATABASE_URL")
+// }
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                String  @id @default(cuid())
+  username          String
+  email             String  @unique
+  password          String
+  referralCode      String  @unique
+  isVerified        Boolean @default(false)
+  profilePictureUrl String?
+  profilePictureDirectory String?
+  phoneNumber       String?
+  birthDate         DateTime? @db.Date
+  address           String?  @db.Text
+  gender            Gender?
+  role              String  @default("CUSTOMER")
+  totalPoint        Int     @default(0)
+  isGoogleRegistered Boolean @default(false)
+  countResetPass    Int @default(0)
+
+  referralPoints    ReferralPoint[]
+  referralDiscounts ReferralDiscount[]
+  transactions      Transaction[]
+  reviews           Review[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("users")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model EventOrganizer {
+  id          String  @id @default(cuid())
+  email       String  @unique
+  password    String
+  companyName String
+  address     String
+  phoneNumber String
+  profilePictureUrl String?
+  profilePictureDirectory String?
+  isVerified  Boolean @default(false)
+  pic         String
+  role        String  @default("EO")
+  events      Event[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("event_organizers")
+}
+
+model ReferralPoint {
+  id     String   @id @default(cuid())
+  point  Int
+  expiry DateTime
+
+  userId String
+  users  User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("referral_points")
+}
+
+model ReferralDiscount {
+  id       String   @id @default(cuid())
+  percentDiscount Int
+  expiry   DateTime
+  isUsed   Boolean  @default(false)
+  userId   String
+  users    User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("referral_discounts")
+}
+
+model Event {
+  id           String    @id @default(cuid())
+  name         String
+  type         EventType
+  locationName String
+  location     String
+  url          String?
+  description  String?
+  startDate    DateTime
+  endDate      DateTime
+  isPaid       Boolean   @default(false)
+  capacity     Int
+
+  categoryId     Int
+  categories     Category       @relation(fields: [categoryId], references: [id])
+  eoId           String
+  eventOrganizer EventOrganizer @relation(fields: [eoId], references: [id])
+
+  tickets      EventTicket[]
+  images       EventImage[]
+  reviews      Review[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("events")
+}
+
+model EventTicket {
+  id             String    @id @default(cuid())
+  name           String
+  price          Int
+  available      Int
+  bookSeat       Int
+  totalSeat      Int
+  discount       Int       @default(0)
+  discountStart  DateTime?
+  discountExpiry DateTime?
+  startDate      DateTime
+  endDate        DateTime
+
+  transaction_details TransactionDetail[]
+  eventId             String
+  events              Event               @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("event_tickets")
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  events Event[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("categories")
+}
+
+model EventImage {
+  id  Int    @id @default(autoincrement())
+  url String
+  directory String
+
+  eventId String
+  events  Event  @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("event_images")
+}
+
+model Transaction {
+  id         String @id @default(cuid())
+  totalPrice Int @default(0)
+  status     Status @default(WAITING_FOR_PAYMENT)
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+
+  details TransactionDetail[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("transactions")
+}
+
+model TransactionDetail {
+  id    Int @id @default(autoincrement())
+  price Int
+  qty   Int
+
+  transactionId String
+  transactions  Transaction @relation(fields: [transactionId], references: [id])
+  ticketId      String
+  tickets       EventTicket @relation(fields: [ticketId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("transaction_details")
+}
+
+// model TransactionStatus {
+//   id            String      @id @default(cuid())
+//   status        Status      @default(WAITING_FOR_PAYMENT)
+//   transactionId String
+//   transactions  Transaction @relation(fields: [transactionId], references: [id])
+
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime  @updatedAt
+//   deletedAt DateTime?
+
+//   @@map("transactions_status")
+// }
+
+model Review {
+  comments String?
+  rating   Int
+  feedback String?
+
+  userId  String
+  users   User   @relation(fields: [userId], references: [id])
+  eventId String
+  events  Event  @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@id([userId, eventId])
+  @@map("reviews")
+}
+
+enum EventType {
+  ONLINE
+  OFFLINE
+}
+
+enum Status {
+  WAITING_FOR_PAYMENT
+  PAID
+  CANCELLED
+}
