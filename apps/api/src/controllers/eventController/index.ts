@@ -257,8 +257,6 @@ export const getEventDetail = async(req: Request, res: Response, next: NextFunct
             endDate: item.endDate
         })
     })
-
-    console.log(eventTickets)
     res.status(200).json({
         error: false,
         message: 'Get event detail success',
@@ -274,83 +272,3 @@ export const getEventDetail = async(req: Request, res: Response, next: NextFunct
         }
     })
 }
-
-// model Event {
-//     id           String    @id @default(cuid())
-//     name         String
-//     type         EventType
-//     locationName String
-//     location     String
-//     url          String?
-//     description  String?
-//     startDate    DateTime
-//     endDate      DateTime
-//     isPaid       Boolean   @default(false)
-//     capacity     Int
-  
-//     categoryId     Int
-//     categories     Category       @relation(fields: [categoryId], references: [id])
-//     eoId           String
-//     eventOrganizer EventOrganizer @relation(fields: [eoId], references: [id])
-  
-//     tickets      EventTicket[]
-//     images       EventImage[]
-//     reviews      Review[]
-  
-//     createdAt DateTime  @default(now())
-//     updatedAt DateTime  @updatedAt
-//     deletedAt DateTime?
-  
-//     @@map("events")
-//   }
-  
-//   model EventTicket {
-//     id             String    @id @default(cuid())
-//     name           String
-//     price          Int
-//     available      Int
-//     bookSeat       Int
-//     discount       Int       @default(0)
-//     discountStart  DateTime?
-//     discountExpiry DateTime?
-//     startDate      DateTime
-//     endDate        DateTime
-  
-//     transaction_details TransactionDetail[]
-//     eventId             String
-//     events              Event               @relation(fields: [eventId], references: [id])
-  
-//     createdAt DateTime  @default(now())
-//     updatedAt DateTime  @updatedAt
-//     deletedAt DateTime?
-  
-//     @@map("event_tickets")
-//   }
-  
-//   model Category {
-//     id   Int    @id @default(autoincrement())
-//     name String
-  
-//     events Event[]
-  
-//     createdAt DateTime  @default(now())
-//     updatedAt DateTime  @updatedAt
-//     deletedAt DateTime?
-  
-//     @@map("categories")
-//   }
-  
-//   model EventImage {
-//     id  Int    @id @default(autoincrement())
-//     url String
-  
-//     eventId String
-//     events  Event  @relation(fields: [eventId], references: [id])
-  
-//     createdAt DateTime  @default(now())
-//     updatedAt DateTime  @updatedAt
-//     deletedAt DateTime?
-  
-//     @@map("event_images")
-//   }
-  

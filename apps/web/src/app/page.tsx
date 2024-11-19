@@ -135,6 +135,7 @@ export default function Home() {
                         width={300}
                         height={300}
                         alt=''
+                        className='object-cover w-full h-full'
                         />
                       </figure>
                       <section className="flex flex-col p-5 text-sm gap-2 w-full">

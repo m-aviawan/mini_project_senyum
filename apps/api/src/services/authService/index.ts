@@ -9,7 +9,8 @@ import { createToken } from "@/utils/jsonWebToken";
 import { compile } from "handlebars";
 import { createTokenForVerifyRegister } from "@/utils/jsonWebToken";
 import { comparePassword } from "@/utils/hashPassword";
-import { IUser } from "./types";
+import { IEO, IUser, IUserWithToken } from "./types";
+import { decodeToken } from "@/utils/jsonWebToken";
 
 export const registerUserService = async({ username, email, password, referralCode}: Pick< IUser, 'username' | 'email' | 'password' | 'referralCode' >) => {
         
@@ -66,19 +67,6 @@ export const registerUserService = async({ username, email, password, referralCo
         })
 
         if(isReferralCodeCorrect) {
-            
-            // const query = await mySqlConnection()
-            // await query.query(`
-            //    CREATE EVENT transaction_${eventSchedulerUniqueId!}
-            //    ON SCHEDULE AT NOW() + INTERVAL 1 MINUTE 
-            //    DO
-            //    BEGIN
-            //    UPDATE referral_discounts SET isUsed = 1 WHERE id = '${createdReferralDiscount!.id}'   
-            //    UPDATE referral_points SET point = 0 WHERE id = '${createdReferralPoint!.id}'  
-            //    END 
-            //     `)
-                //buat model untuk point balance
-
 
             const emailBodyReferralDiscount = fs.readFileSync('./src/public/emailHTMLCollections/getReferralDiscount.html', 'utf-8')
             
@@ -209,39 +197,203 @@ export const keepAuthService = async({ id, role }: Pick<IUser, 'id' | 'role'>) =
     return data
 }
 
-// export const verifyRegister = async() => {
-//     let user, username, isGoogleRegistered;
-//         if(role === 'CUSTOMER') {
-//             user = await prisma.user.findUnique({
-//                 where: {
-//                     id
-//                 }
-//             })
-//             if(!user?.id) throw { msg: 'User not found!', status: 406 }
-//             if(user!.isVerified) throw { msg: `You're already verified!`, status: 406 }
-//             await prisma.user.update({
-//                 where: { id },
-//                 data: { isVerified: true } 
-//             })
-//             username = user?.username
-//             isGoogleRegistered = user?.isGoogleRegistered
-//         } else if(role === 'EO') {
-//             user = await prisma.eventOrganizer.findUnique({
-//                 where: {
-//                     id
-//                 }
-//             })
-//             if(!user?.id) throw { msg: 'User not found!', status: 406 }
-//             if(user!.isVerified) throw { msg: `You're already verified!`, status: 406 }
-//             await prisma.eventOrganizer.update({
-//                 where: { id },
-//                 data: { isVerified: true }
-//             })
-//             username = user?.companyName
-//             isGoogleRegistered = false
-//         } else {
-//             throw { msg: 'Role not found!', status: 406 }
-//         }
+export const verifyRegisterService = async({id, role}: Pick<IUser, 'id' | 'role'>) => {
+    let user, username, isGoogleRegistered, profilePictureUrl;
+    if(role === 'CUSTOMER') {
+        user = await prisma.user.findUnique({
+            where: {
+                id
+            }
+        })
+        if(!user?.id) throw { msg: 'User not found!', status: 406 }
+        if(user!.isVerified) throw { msg: `You're already verified!`, status: 406 }
+        await prisma.user.update({
+            where: { id },
+            data: { isVerified: true } 
+        })
+        username = user?.username
+        isGoogleRegistered = user?.isGoogleRegistered
+        profilePictureUrl = user?.profilePictureUrl
+    } else if(role === 'EO') {
+        user = await prisma.eventOrganizer.findUnique({
+            where: {
+                id
+            }
+        })
+        if(!user?.id) throw { msg: 'User not found!', status: 406 }
+        if(user!.isVerified) throw { msg: `You're already verified!`, status: 406 }
+        await prisma.eventOrganizer.update({
+            where: { id },
+            data: { isVerified: true }
+        })
+        username = user?.companyName
+        isGoogleRegistered = false
+        profilePictureUrl = user?.profilePictureUrl
+    } else {
+        throw { msg: 'Role not found!', status: 406 }
+    }
+        const token = await createToken({ id, role: user!.role })
+
+    return {
+        token,
+        role,
+        username,
+        isGoogleRegistered,
+        profilePictureUrl,
+        isVerified: true
+    }
+}
+
+export const registerEOService = async({companyName, phoneNumber, address, email, pic, password }: Pick<IEO , 'companyName' | 'phoneNumber' | 'address' | 'email' | 'pic' | 'password' >) => {
+    if(!companyName || !phoneNumber || !address || !email || !pic || !password) throw { msg: 'Field must be filled!', status: 406 }
+        if(!email.includes('@')) throw { msg: 'Email invalid!' }
         
-//         const token = await createToken({ id, role: user!.role })
-// }
+        const emailBodyVerifyRegisterForEO = fs.readFileSync('./src/public/emailHTMLCollections/verifyRegisterForEO.html', 'utf-8')
+        
+        const newEO = await prisma.eventOrganizer.create({
+            data: {
+                companyName,
+                phoneNumber,
+                email,
+                pic,
+                password: await hashPassword(password),
+                address
+            }
+        })
+        
+        const token = await createToken({ id: newEO.id, role: newEO.role })
+        const tokenForVerifyRegister = await createTokenForVerifyRegister({ id: newEO.id, role: newEO.role })
+        
+        let compiledEmailBodyVerifyRegisterForEO: any = await compile(emailBodyVerifyRegisterForEO)
+        compiledEmailBodyVerifyRegisterForEO = compiledEmailBodyVerifyRegisterForEO({ companyName, url: `http://localhost:3000/verify-register-eo/${tokenForVerifyRegister}` })
+    
+        
+        await transporter.sendMail({
+            to: email,
+            subject: 'Verify Register [Spiral Tickets]',
+            html: compiledEmailBodyVerifyRegisterForEO
+        })
+
+        return {
+            companyName,
+            token,
+            role: newEO.role,
+            isVerified: newEO.isVerified,
+            isGoogleRegistered: false,
+            profilePictureUrl: newEO.profilePictureUrl
+        }
+}
+
+export const authWithGoogleService = async({email}: Pick<IUser, 'email'>) => {
+    const checkUser = await prisma.user.findUnique({
+        where : {
+            email
+        }
+    })
+    let userData;
+
+    if(!checkUser?.id) {
+        const password = '12345678'
+        const userReferralCode = uuid().slice(0, 8)
+            
+        const newUser = await prisma.user.create({
+            data: { 
+                email, 
+                password: await hashPassword(password), 
+                referralCode: userReferralCode,
+                username: 'Guest',
+                isGoogleRegistered: true,
+                isVerified: true,
+                role: 'CUSTOMER'
+            }
+        })
+
+        userData = {
+            username: newUser?.username,
+            role: newUser?.role,
+            id: checkUser?.id,
+            isVerified: newUser?.isVerified,
+            isGoogleRegistered: newUser?.isGoogleRegistered,
+            profilePictureUrl: newUser?.profilePictureUrl,
+        }
+    
+        const emailBodyReferralCode = fs.readFileSync('./src/public/emailHTMLCollections/getReferralCode.html', 'utf-8')
+    
+        let compiledEmailBodyReferralCode: any = await compile(emailBodyReferralCode)
+        compiledEmailBodyReferralCode = compiledEmailBodyReferralCode({referralCode: userReferralCode, username: 'there'})
+
+        await transporter.sendMail({
+            to: email,
+            subject: 'Referral Code [Spiral Tickets]',
+            html: compiledEmailBodyReferralCode
+        })
+    } else if (checkUser?.id) {
+        userData = {
+            username: checkUser?.username,
+            role: checkUser?.role,
+            isVerified: checkUser?.isVerified,
+            id: checkUser?.id,
+            isGoogleRegistered: checkUser?.isGoogleRegistered,
+            profilePictureUrl: checkUser?.profilePictureUrl,
+        }
+    } else {
+        throw { msg: 'Email or Password invalid! Try again', status: 406 }
+    }
+
+    const token = await createToken({id: userData?.id, role: userData?.role })
+
+    return {
+        token,
+        username: userData?.username,
+        role: userData?.role,
+        isVerified: userData?.isVerified,
+        isGoogleRegistered: userData?.isGoogleRegistered,
+        profilePictureUrl: userData?.profilePictureUrl
+    }
+}
+
+export const forgotPasswordService = async({ email }: Pick<IUser, 'email'>) => {
+    const user = await prisma.user.findUnique({
+        where : {
+            email,
+            isGoogleRegistered: false
+        }
+    })
+
+    if(!user?.id) throw { msg: 'User not found!' }
+
+    const token = await createToken({id: user?.id, role: user?.role})
+
+    const emailForgotPassword = fs.readFileSync("./src/public/emailHTMLCollections/forgotPassword.html", 'utf-8')
+    let compiledEmailForgotPassword: any = await compile(emailForgotPassword)
+    compiledEmailForgotPassword = compiledEmailForgotPassword({username: user?.username, url: `http://localhost:3000/auth/reset-password/${token}/${user?.countResetPass}`})
+
+    await transporter.sendMail({
+        to: email,
+        subject: 'Reset Password [Spiral Ticket]',
+        html: compiledEmailForgotPassword
+    })
+    
+}
+
+export const resetPasswordService = async({token, countResetPass, password}: Pick<IUserWithToken, 'token' | 'countResetPass' | 'password' >) => {
+    const decodedToken: any = await decodeToken(token)
+        const isResetPassNeverUsed = await prisma.user.findUnique({
+            where: {
+                id: decodedToken?.data?.id,
+                countResetPass: Number(countResetPass)
+            }
+        })
+        
+        if(!isResetPassNeverUsed?.id) throw { msg: 'URL is expired!', status: 406 }
+
+        await prisma.user.update({
+            where: {
+                id: isResetPassNeverUsed?.id
+            },
+            data: {
+                password: await hashPassword(password),
+                countResetPass: Number(isResetPassNeverUsed.countResetPass) + 1
+            }
+        })
+}
