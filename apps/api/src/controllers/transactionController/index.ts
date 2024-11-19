@@ -1,25 +1,203 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "@/connection/prisma";
-import { isAfter } from "date-fns";
-
+// import { mysqlConnection, prisma } from "./../../connection";
+import { addHours } from "date-fns";
+import snap from "@/utils/midtransInstance/midtransInstance";
 
 export const createTransaction = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id, ticketDetails, referralDiscounts = 0, referralPoints = 0 } = req.body
+        const { id, ticketDetails, referralDiscount = 0, referralPoints = 0 } = req.body
         const { userId } = req.params
-        const findUser = await prisma.user.findFirst({
+
+        const dataUser = await prisma.user.findUnique({
             where: {
                 id: id
             }
         })
 
-        const findEvent = await prisma.event.findFirst({
-            where: {id: userId},
+
+        const dataEvent = await prisma.event.findUnique({
+            where: { id: userId },
             include: {
                 tickets: true,
                 eventOrganizer: true
             }
         })
+
+        if (!dataEvent) throw { msg: "Event not Found", status: 404 }
+        let totalPembayaran = 0;
+        const dataDetails = ticketDetails?.map((item: any, i: any) => {
+
+            const subtotal = item.quantity * item.price
+            const totalDiscount = item.quantity * item.discount
+            totalPembayaran += subtotal
+            totalPembayaran -= totalDiscount
+
+            return {
+                ticketId: item.ticketId,
+                price: subtotal,
+                quantity: item.quantity,
+                discount: totalDiscount,
+                expiredAt: addHours(new Date(), 7)
+            }
+        })
+
+        if (referralDiscount) {
+            const findUserDiscount = await prisma.referralDiscount.findFirst({
+                where: {
+                    userId: userId,
+                    isUsed: false,
+                }
+            })
+
+            if (addHours(new Date(), 7) >= findUserDiscount?.expiry!) throw { msg: 'ERROR', status: 404 }
+
+            if (findUserDiscount) {
+                const discountUser = (findUserDiscount.percentDiscount)/100 * totalPembayaran
+                totalPembayaran -= discountUser
+
+                await prisma.referralDiscount.update({
+                    where: { id: findUserDiscount.id },
+                    data: {
+                        isUsed: true,
+                        percentDiscount: 0
+                    }
+                })
+            }
+        }
+
+        if (referralPoints) {
+            const findUserRefferal = await prisma.referralPoint.findFirst({
+                where: {
+                    userId: userId,
+
+
+                }
+            })
+
+            if (addHours(new Date(), 7) >= findUserRefferal?.expiry!) throw { msg: 'ERROR', status: 404 }
+
+            if (findUserRefferal) {
+                const totalPoints = findUserRefferal?.point - referralPoints
+
+                totalPembayaran = Math.max(totalPembayaran - referralPoints, 0)
+                await prisma.referralPoint.update({
+                    where: { id: findUserRefferal.id },
+                    data: {
+                        point: totalPoints,
+                    }
+
+                })
+            }
+        }
+
+
+        if (totalPembayaran == 0) {
+            const transactionId = await prisma.transaction.create({
+                data: {
+                    eventId: (id),
+                    totalPrice: totalPembayaran,
+                    userId: userId,
+                    eventOrganizerId: dataEvent.eventOrganizer.id,
+                    status: "PAID"
+                }
+            })
+
+            const dataArrTransacDetail = dataDetails.map((item: any, i: any) => {
+                return {
+                    transactionsId: transactionId.id,
+                    ticketId: item.ticketId,
+                    price: item.price,
+                    discount: item.discount,
+                    quantity: item.quantity,
+                }
+            })
+            await prisma.transactionDetail.createMany({
+                data: dataArrTransacDetail
+            })
+
+            for (const item of ticketDetails) {
+                await prisma.eventTicket.update({
+                    where: { id: item.ticketId },
+                    data: { available: { decrement: item.quantity } }
+                });
+            }
+
+            res.status(200).json({
+                error: false,
+                message: 'Berhasil Melakukan Pembayaran',
+                data: {}
+            })
+
+        } else {
+
+            const transactionId = await prisma.transaction.create({
+                data: {
+                    eventId: (id),
+                    totalPrice: totalPembayaran,
+                    userId: userId,
+                    eventOrganizerId: dataEvent.eventOrganizer.id,
+                    status: "WAITING_FOR_PAYMENT"
+                }
+            })
+
+
+
+            const dataArrTransacDetail = dataDetails.map((item: any, i: any) => {
+                return {
+                    transactionsId: transactionId.id,
+                    ticketId: item.ticketId,
+                    price: item.price,
+                    discount: item.discount,
+                    quantity: item.quantity,
+                }
+            })
+            await prisma.transactionDetail.createMany({
+                data: dataArrTransacDetail
+            })
+
+            for (const item of ticketDetails) {
+                await prisma.eventTicket.update({
+                    where: { id: item.ticketId },
+                    data: { available: { decrement: item.quantity } }
+                });
+            }
+
+
+
+            const query = await mysqlConnection()
+            await query.query(`
+   
+
+            CREATE EVENT transaction_${transactionId.id}
+            ON SCHEDULE AT NOW() + INTERVAL 15 MINUTE
+            DO 
+            BEGIN
+                INSERT INTO transactionstatus (status, transactionsId, updatedAt) VALUES ('EXPIRED', '${transactionId.id}', utc_timestamp());
+            END;
+        `);
+
+
+            const paymentToken = await snap.createTransaction({
+                payment_type: 'bank_transfer',
+
+                transaction_details: {
+                    order_id: transactionId.id.toString(),
+                    gross_amount: totalPembayaran,
+                },
+                customer_details: {
+                    first_name: dataUser?.username,
+                    email: dataUser?.email,
+                    phone: dataUser?.phoneNumber,
+                }
+            });
+
+            res.status(200).json({
+                error: false,
+                message: 'Berhasil Melakukan Pembayaran',
+                data: { paymentToken }
+            })
+        }
 
     } catch (error) {
         next(error)
@@ -59,6 +237,12 @@ export const createTransaction = async (req: Request, res: Response, next: NextF
 
 
 
+
+import { Connection } from "mysql2";
+
+function mysqlConnection(): Connection {
+    throw new Error("Function not implemented.");
+}
 // export const createTransaction = async(req: Request, res: Response, next: NextFunction) => {
 //     try {
 //         const { tickets, id } = req.body

@@ -156,6 +156,7 @@ model EventImage {
 
 model Transaction {
   id         String              @id @default(cuid())
+  eventId    String
   totalPrice Int                 @default(0)
   status     Status              @default(WAITING_FOR_PAYMENT)
   userId     String
@@ -163,6 +164,8 @@ model Transaction {
   updatedAt  DateTime            @updatedAt
   deletedAt  DateTime?
   details    TransactionDetail[]
+  eventOrganizerId String
+  transactionStatus TransactionStatus[]
   user       User                @relation(fields: [userId], references: [id])
 
   @@map("transactions")
@@ -174,6 +177,7 @@ model TransactionDetail {
   qty           Int
   transactionId String
   ticketId      String
+  expiry        DateTime?   
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   deletedAt     DateTime?
@@ -181,6 +185,19 @@ model TransactionDetail {
   transactions  Transaction @relation(fields: [transactionId], references: [id])
 
   @@map("transaction_details")
+}
+
+model TransactionStatus {
+  id             Int     @id @default(autoincrement())
+  transactionsId String?
+  status         Status
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  Transactions Transaction? @relation(fields: [transactionsId], references: [id])
+
+  @@map("transactionStatus")
 }
 
 model Review {
