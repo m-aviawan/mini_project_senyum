@@ -197,8 +197,13 @@ export const keepAuthService = async({ id, role }: Pick<IUser, 'id' | 'role'>) =
     return data
 }
 
-export const verifyRegisterService = async({id, role}: Pick<IUser, 'id' | 'role'>) => {
+export const verifyRegisterService = async({token}: Pick<IUserWithToken, 'token'>) => {
     let user, username, isGoogleRegistered, profilePictureUrl;
+    const decodedToken: any = await decodeToken(token)
+
+    const role = decodedToken?.data?.role
+    const id = decodedToken?.data?.id
+    
     if(role === 'CUSTOMER') {
         user = await prisma.user.findUnique({
             where: {
@@ -232,10 +237,10 @@ export const verifyRegisterService = async({id, role}: Pick<IUser, 'id' | 'role'
     } else {
         throw { msg: 'Role not found!', status: 406 }
     }
-        const token = await createToken({ id, role: user!.role })
+        const createdToken = await createToken({ id, role: user!.role })
 
     return {
-        token,
+        token: createdToken,
         role,
         username,
         isGoogleRegistered,

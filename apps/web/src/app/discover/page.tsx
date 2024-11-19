@@ -6,10 +6,14 @@ import { Label } from '@/components/ui/label'
 import { useQuery } from '@tanstack/react-query'
 import instance from '@/util/axiosInstance'
 import Link from 'next/link'
-
+import Image from 'next/image'
+import authStore from '@/zustand/authStore'
+import toast from 'react-hot-toast'
 
 const DiscoverPage = () => {
-  
+  const events = authStore(state => state.eventsByCategories)
+  const isVerified = authStore(state => state.isVerified)
+  const setEvents = authStore(state => state.setEvents)
   const { 
     data: dataEvents, 
     isPending: isPendingEvents, 
@@ -18,6 +22,7 @@ const DiscoverPage = () => {
     queryKey: ['getEvents'],
     queryFn: async() => {
       let res = await instance.get('/event')
+      setEvents({ eventsByCategories: [...res.data.data.eventsByCategories] })
       return res.data.data
     }
   })
@@ -42,7 +47,7 @@ const DiscoverPage = () => {
 
 
   return (
-    <main className='flex flex-col gap-12 pl-72'>
+    <main className='flex flex-col gap-10 pl-72 overflow-hidden'>
       <aside className='overflow-auto fixed p-6 left-0 w-[280px] top-[66px] bg-white border-r border-r-gray-300 h-full'>
         <nav className='flex flex-col pb-20 gap-6'>
           <section className='flex justify-between pl-4 text-[15px] font-medium items-center'>
@@ -106,40 +111,72 @@ const DiscoverPage = () => {
           </div>
         </nav>
       </aside>
-      <section className='grid grid-cols-4 gap-2'>
+      <section className='flex flex-col gap-5 overflow-hidden'>
         {
-          dataEvents!.map((item: any) => {
-            const startDate = new Date(item.startDate).toDateString().split(' ')
-            const [ dayStart, monthStart, dateStart, yearStart ] = startDate
-            const fixedStartDate = `${dateStart} ${monthStart} ${yearStart}`
-            const endDate = new Date(item.endDate).toDateString().split(' ')
-            const [ dayEnd, monthEnd, dateEnd, yearEnd ] = endDate
-            const fixedEndDate = `${dateEnd} ${monthEnd} ${yearEnd}`
-
-            return(
-            <Link href={`/events/${btoa(item.id)}`}>
-              <section className='hover:translate-y-1 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden drop-shadow-lg'>
-                <div className='h-[150px] bg-orange-400 w-full'>
-
-                </div>
-                <section className='flex flex-col p-5 text-sm gap-2 w-full'>
-                  <article className='flex flex-col gap-2'>
-                    <h1 className='font-bold'>{item?.name}</h1>
-                    <p className='text-gray-600'>{fixedEndDate === fixedStartDate ? fixedStartDate : `${fixedStartDate} - ${fixedEndDate}`}</p>
-                    <p className='text-gray-600'>{item.locationName}</p>
-                    <p className='text-gray-600'>{item.location}</p>
-                    <p className='font-bold'>{item.isPaid ? 'Paid' : 'Free'}</p>
-                  </article>
-                  <section className='flex gap-3 items-center border-t justify-end border-t-gray-300 pt-3 w-full'>
-                    <h1>{item.eventOrganizer.companyName}</h1>
-                    <div className='rounded-full h-10 w-10 bg-red-500'></div>
-                  </section>
-                </section>
+        events?.map((item: any) => {
+          
+          return (
+            <section className="flex flex-col gap-5 overflow-x-auto">
+              <h1 className="text-lg font-semibold">{item?.name}</h1>
+              <section className="flex gap-3 w-fit">
+                {item?.events?.map((itm: any) => {
+              const startDate = new Date(itm.startDate).toDateString().split(' ');
+              const [dayStart, monthStart, dateStart, yearStart] = startDate;
+              const fixedStartDate = `${dateStart} ${monthStart} ${yearStart}`;
+              const endDate = new Date(itm.endDate).toDateString().split(' ');
+              const [dayEnd, monthEnd, dateEnd, yearEnd] = endDate;
+              const fixedEndDate = `${dateEnd} ${monthEnd} ${yearEnd}`;
+                  return (
+                    <Link href={isVerified ? `/events/${btoa(itm.id)}` : '/discover'} onClick={() => !isVerified && toast.error('Please complete registration with verify email!')}>
+                      <section className="hover:-translate-y-3 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden shadow-lg w-[250px]">
+                        <figure className="h-[150px] bg-gray-300 w-full">
+                          <Image 
+                          src={itm.images[0].url}
+                          width={300}
+                          height={300}
+                          alt=''
+                          className='object-cover w-full h-full'
+                          />
+                        </figure>
+                        <section className="flex flex-col p-5 text-sm gap-2 w-full">
+                          <article className="flex flex-col gap-2">
+                            <h1 className="font-bold">{itm?.name.toString().length <= 20 ? itm?.name : itm?.name.slice(0,20) + '...'}</h1>
+                            <p className="text-gray-600">
+                              {fixedEndDate === fixedStartDate
+                                ? fixedStartDate
+                                : `${fixedStartDate} - ${fixedEndDate}`}
+                            </p>
+                            <p className="text-gray-600">{itm?.locationName.toString().length <= 20 ? itm?.locationName : itm?.locationName.slice(0,20) + '...'}</p>
+                            <p className="text-gray-600">{itm?.location === undefined || itm?.location === '' ? 'Online' : itm?.location.toString().length <= 20 ? itm?.location : itm?.location.slice(0,20) + '...'}</p>
+                            <p className="font-bold">
+                              {itm.isPaid ? 'Paid' : 'Free'}
+                            </p>
+                          </article>
+                          <section className="flex gap-3 items-center border-t justify-end border-t-gray-300 pt-3 w-full">
+                            <h1>{itm.eventOrganizer.companyName}</h1>
+                            <figure className="rounded-full h-10 w-10 bg-gray-200 overflow-hidden">
+                                {
+                                  itm.eventOrganizer.profilePictureUrl && (
+                                    <Image 
+                                    src={itm.eventOrganizer.profilePictureUrl}
+                                    width={100}
+                                    height={100}
+                                    alt=''
+                                    />
+                                  )
+                                }
+                            </figure>
+                          </section>
+                        </section>
+                      </section>
+                    </Link>
+                  );
+                })}
               </section>
-            </Link>
-            )
-          })
-        }
+            </section>
+          );
+        })
+      }
       </section>
       
     </main>

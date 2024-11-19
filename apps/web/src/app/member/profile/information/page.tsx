@@ -12,12 +12,15 @@ import { updateProfileUserValidationSchema } from "@/features/member/profile/inf
 import authStore from "@/zustand/authStore"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css";
+import { useRouter } from "next/navigation"
+import { setTime } from "react-datepicker/dist/date_utils"
 
 const MemberProfileInformationPage = () => {
   const token = authStore(state => state.token)
+  const router= useRouter()
   const imageUrl: string = authStore(state => state.profilePictureUrl)
   const [ dataValues, setDataValues ] = useState<any>({})
-  const [ imagePreview, setImagePreview ] = useState(imageUrl)
+  const [ imagePreview, setImagePreview ] = useState('')
   const [startDate, setStartDate] = useState(new Date());
   const { data: dataProfile, isError, error } = useQuery({
     queryKey: ['getProfileData'],
@@ -41,13 +44,14 @@ const MemberProfileInformationPage = () => {
 
   const { mutate: mutateUpdateUser, isPending: isPendingUpdateUser } = useMutation({
     mutationFn: async(fd: FormData) => {
-      toast.success('Update profile success')
-
       const res = await instance.patch('/user', fd)
       return res
     },
     onSuccess: (res) => {
-      toast.success('Update profile success')
+      location.reload()
+      setTimeout(() => {
+        toast.success('Update profile success')
+      }, 1000)
     },
     onError: (err) => {
       toast.error('Update profile failed!')
@@ -80,7 +84,7 @@ const MemberProfileInformationPage = () => {
       validationSchema={updateProfileUserValidationSchema}
       onSubmit={(values) => {
         const fd = new FormData()
-        fd.append('birthDate', values?.birthDate)
+        fd.append('birthDate', startDate.toISOString())
         fd.append('username', values?.username)
         fd.append('phoneNumber', values?.email)
         fd.append('address', values?.address)
@@ -145,12 +149,12 @@ const MemberProfileInformationPage = () => {
                   <ErrorMessage component={'div'} name='phoneNumber' className="text-red-600 text-xs"/>
                 </section>
                 <section className='flex flex-col gap-1'>
-                  <h1 className='text-gray-600 font-semibold'>Address</h1>
+                  <h1 className='text-gray-600 font-semibold'>Address<span className="text-red-600 ml-2">*</span></h1>
                   <Field as={Input} type="text" name='address' />
                   <ErrorMessage component={'div'} name='address' className="text-red-600 text-xs"/>
                 </section>
                 <section className='flex flex-col gap-1'>
-                  <h1 className='text-gray-600 font-semibold'>Birth Date</h1>
+                  <h1 className='text-gray-600 font-semibold'>Birth Date<span className="text-red-600 ml-2">*</span></h1>
                   <DatePicker
                     selected={startDate}
                     onChange={(date) => setStartDate(date as Date)}
@@ -162,7 +166,7 @@ const MemberProfileInformationPage = () => {
                   />
                 </section>
                 <section className='flex flex-col gap-1'>
-                  <h1 className='text-gray-600 font-semibold'>Gender</h1>
+                  <h1 className='text-gray-600 font-semibold'>Gender<span className="text-red-600 ml-2">*</span></h1>
                   <select name='gender' className="select select-bordered w-full" onChange={(e) => setFieldValue('gender', e.target.value)}>
                     <option disabled selected={!dataProfile?.gender}>Select a gender</option>
                     <option value='MALE'>Male</option>
@@ -171,7 +175,7 @@ const MemberProfileInformationPage = () => {
                   <ErrorMessage component={'div'} name='gender' className="text-red-600 text-xs"/>
                 </section>
               </section>
-              <Button type='submit' className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</Button>
+              <Button type='submit' disabled={isPendingUpdateUser} className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</Button>
             </section>
             </Form>
             )

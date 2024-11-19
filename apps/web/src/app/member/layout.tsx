@@ -9,6 +9,8 @@ import { IoTicketOutline } from "react-icons/io5";
 import { MdApps } from "react-icons/md";
 import { IoCloseSharp } from 'react-icons/io5';
 import Link from 'next/link'
+import authStore from '@/zustand/authStore';
+import { useRouter } from 'next/navigation';
 
 interface IMemberPageLayoutProps {
   children: ReactNode
@@ -17,7 +19,8 @@ interface IMemberPageLayoutProps {
 
 const MemberPageLayout = ({children}: IMemberPageLayoutProps) => {
   const [ isMenuActive, setIsMenuActive ] = useState(false)
-  
+  const role = authStore(state => state.role)
+  const router = useRouter()
   const dashboardMenuListForCust = [
     {
       title: 'Explore',
@@ -47,7 +50,7 @@ const MemberPageLayout = ({children}: IMemberPageLayoutProps) => {
   const activateNav = () => {
     setIsMenuActive(!isMenuActive)
   }
-
+  if(role !== "CUSTOMER") router.push('/')
   return (
     <main>
       <button onClick={() => activateNav()} className='xl:hidden z-50 fixed top-12 md:top-16 p-2 left-0 bg-white border-b border-b-gray-300 text-sm w-full hover:bg-gray-300'>

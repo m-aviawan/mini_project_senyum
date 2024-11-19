@@ -138,7 +138,7 @@ export const updateEvent = async(req: Request, res: Response, next: NextFunction
 
 export const getEvents = async(req: Request, res: Response, next: NextFunction) => {
     try {
-
+        const { event = '' } = req.query
         interface IFilterFeat {
             take: number,
             skip: number,
@@ -159,6 +159,11 @@ export const getEvents = async(req: Request, res: Response, next: NextFunction) 
             // take,
             include: {
                 events: {
+                    where: {
+                        name: {
+                            startsWith: `${event}%`
+                        }
+                    },
                     include: {
                         images: true,
                         eventOrganizer: true

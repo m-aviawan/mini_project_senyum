@@ -2,7 +2,6 @@ import * as Yup from 'yup'
 
 export const updateProfileEOValidationSchema = Yup.object().shape({
     email: Yup.string().email('Email address invalid!'),
-    companyName: Yup.string().required('Field must be filled!'),
     pic: Yup.string().required('Field must be filled!'),
     phoneNumber: Yup.string().required('Field must be filled!'),
     address: Yup.string().required('Field must be filled!'),

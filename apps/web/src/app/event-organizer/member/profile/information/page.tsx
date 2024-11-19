@@ -20,10 +20,11 @@ import instance from "@/util/axiosInstance"
 import { updateProfileEOValidationSchema } from "@/features/event-organizer/member/profile/information/updateProfileEOValidationSchema"
 import toast from "react-hot-toast"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 const EOMemberProfileInformationPage = () => {
   const [imagePreview, setImagePreview] = useState('')
-
+  const router = useRouter()
   const [ dataValues, setDataValues ] = useState<any>({})
   const { data: dataProfile } = useQuery({
     queryKey: ['getProfileData'],
@@ -39,7 +40,10 @@ const EOMemberProfileInformationPage = () => {
       return res
     },
     onSuccess: (res) => {
-      toast.success('Update profile success')
+      location.reload()
+      setTimeout(() => {
+        toast.success('Update profile success')
+      }, 1000)
     },
     onError: (err) => {
       toast.error('Update profile failed!')
@@ -69,7 +73,6 @@ const EOMemberProfileInformationPage = () => {
       }}
       validationSchema={updateProfileEOValidationSchema}
       onSubmit={(values) => {
-        console.log(values)
         const fd = new FormData()
         fd.append('email', values.email)
         fd.append('pic', values.pic)
@@ -131,7 +134,7 @@ const EOMemberProfileInformationPage = () => {
                   <ErrorMessage name='address' component={'div'} className="text-red-600 text-xs"/>
                 </section>
               </section>
-              <button onClick={() => console.log('aaaaaaaaaaa')} type="submit" className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</button>
+              <button type="submit" className="btn bg-blue-600 hover:bg-blue-400 text-white">Update Changes</button>
             </section>
             </Form>
             )
