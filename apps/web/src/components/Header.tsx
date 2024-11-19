@@ -22,19 +22,20 @@ const Header = () => {
   const setLogOut = authStore(state => state.setLogOut)
   const role = authStore(state => state.role)
   const imageUrl: string = authStore(state => state.profilePictureUrl)
-  
+  const setEvents = authStore(state => state.setEvents)
   const router = useRouter()
   const pathname = usePathname()
 
   const {mutate: mutateSearch} = useMutation({
     mutationFn: async(values: string) => {
-        const res = await instance.get(`search?event=${''}&eo=${''}`)
-        return res
+        const res = await instance.get(`search?event=${''}`)
+        setEvents({eventsByCategories: res.data.data.eventsByCategories})
     }
   })
 
   const debounce = useDebouncedCallback((values: string) => {
     router.push(`/discover?search=${values}`)
+    router.refresh()
     mutateSearch(values)
   }, 1500)
 

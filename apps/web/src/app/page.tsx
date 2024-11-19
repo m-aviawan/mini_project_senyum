@@ -7,8 +7,10 @@ import instance from '@/util/axiosInstance'
 import { data } from 'cypress/types/jquery'
 import Link from 'next/link'
 import authStore from '@/zustand/authStore'
+import toast from 'react-hot-toast'
 
 export default function Home() {
+  const isVerified = authStore(state => state.isVerified)
   const { data: dataEvents, isPending: isPendingEvents, isError: isErrorEvents } = useQuery({
     queryKey: ['getEvents'],
     queryFn: async() => {
@@ -127,7 +129,7 @@ export default function Home() {
             const [dayEnd, monthEnd, dateEnd, yearEnd] = endDate;
             const fixedEndDate = `${dateEnd} ${monthEnd} ${yearEnd}`;
                 return (
-                  <Link href={`/events/${btoa(itm.id)}`}>
+                  <Link href={isVerified ? `/events/${btoa(itm.id)}` : '/'} onClick={() => !isVerified && toast.error('Please complete registration with verify email!')}>
                     <section className="hover:-translate-y-3 transition-[1s] flex flex-col items-start bg-white rounded-2xl overflow-hidden shadow-lg w-[250px]">
                       <figure className="h-[150px] bg-gray-300 w-full">
                         <Image 

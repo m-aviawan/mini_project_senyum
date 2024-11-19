@@ -74,16 +74,16 @@ export const keepAuth = async(req: Request, res: Response, next: NextFunction) =
 
 export const verifyRegister = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id, role } = req.body
+        const { token } = req.params
 
-        const userData = await verifyRegisterService({ id, role })
+        const userData = await verifyRegisterService({ token })
     
         res.status(200).json({
             error: false,
             message: 'Verify register success',
             data: {
                 token: userData.token,
-                role,
+                role: userData.role,
                 username: userData.username,
                 isVerified: true,
                 isGoogleRegistered: userData.isGoogleRegistered,

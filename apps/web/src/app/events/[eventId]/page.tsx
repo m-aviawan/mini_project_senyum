@@ -44,7 +44,7 @@ import toast from 'react-hot-toast'
 import authStore from '@/zustand/authStore'
 
 const EventPage = ({params}: any) => {
-
+const [heroSlider, setHeroSlider ] = useState([])
 const isVerified = authStore(state => state.isVerified)
 const role = authStore(state => state.role)
 let eventId: string = params.eventId
@@ -81,7 +81,9 @@ const {
     queryKey: ['getEventDetails'],
     queryFn: async() => {
         let res = await instance.get(`/event/${eventId}`)
-        console.log(res)
+
+        const images = res.data.data.eventDetail.images.map((item: any) => item.url) 
+        setHeroSlider(images)
         return res.data.data
     }
 })
@@ -150,24 +152,6 @@ const quantityOperator = (id: string, name: string, price: number, operator: str
     setGrandTotal(tempGrandTotal)
 }
 
-
-    const heroSlider= [
-        {
-          title: 'Satisfaction',
-          description: 'We seek customer satisfaction through product development that has eco-friendly materials and innovative design.',
-          img: 'https://www.locknlock.com/idn/image/product/2023/03/29/102274892ttmz.jpg'
-        },
-        {
-          title: 'Better Life',
-          description: 'We aim for differentiated challenges and change and we endeavor to improve the life value of customers.',
-          img: 'https://www.locknlock.com/idn/image/common/innovation/labs/open-innovation.jpg'
-        },
-        {
-          title: 'Sharing',
-          description: 'We realize business of sharing that the environment and humans can coexist in harmony and contribute to society.',
-          img: 'https://www.locknlock.com/idn/image/common/innovation/design-center/design-business.jpg'
-        }
-    ]
     
     const [currSlide, setCurrSlide] = useState(0)
     const prev = () => {
@@ -200,7 +184,7 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
                       <figure className='absolute bottom-0 w-full h-full -z-10'>
                         <Image
                           loading='lazy'
-                          src={item.img}
+                          src={item}
                           width={1300}
                           height={1300}
                           alt={`pict-${index + 1}`} 
@@ -282,7 +266,7 @@ if(isPendingEventDetails || isPendingReviewByEvent) {
                 </TabsContent>
                 </Tabs>
         </section>
-        <section className='grid grid-cols-3 gap-10'>
+        <section className='flex flex-col-reverse lg:grid grid-cols-3 gap-10'>
             <section id='tickets' className='col-[1/3] flex flex-col gap-10'>
             <h1 className='text-3xl font-bold flex items-center gap-2'>Tickets <IoTicketSharp className='text-yellow-400'/></h1>
                {

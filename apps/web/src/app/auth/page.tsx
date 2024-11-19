@@ -102,7 +102,7 @@ export default function AuthPage() {
                     Don't have account? Please <Link href='/auth/register'><span className='text-blue-600 hover:text-blue-800 font-bold'>Sign up</span></Link>
                 </article>
                 <article className='text-[12px] mt-[-8px]'>
-                    <Link href='/auth/forgot-password'><span className='text-red-600 hover:underline text-right transition-[0.5s] hover:font-bold'>Forgot password</span></Link>
+                    <Link href='/auth/forgot-password'><span className='text-blue-600 hover:underline text-right transition-[0.5s] hover:text-blue-800 hover:font-bold'>Forgot password</span></Link>
                 </article>
             </section>
             <div className='flex items-center justify-center my-5'>

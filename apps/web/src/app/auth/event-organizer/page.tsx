@@ -56,7 +56,7 @@ export default function EventOrganizerAuthPage() {
                     Don't have account? Please <Link href='/auth/register'><span className='text-blue-600 hover:text-blue-800 font-bold'>Sign up</span></Link>
                 </article>
                 <article className='text-[12px] mt-[-8px]'>
-                    <Link href='/auth/forgot-password'><span className='text-red-600 hover:underline transition-[0.5s] hover:font-bold text-right'>Forgot password</span></Link>
+                    <Link href='/auth/forgot-password'><span className='text-blue-600 hover:underline transition-[0.5s] hover:font-blue-800 hover:font-bold text-right'>Forgot password</span></Link>
                 </article>
             </section>
         </section>

@@ -9,6 +9,7 @@ interface IAuthStore {
     isGoogleRegistered: boolean,
     profilePictureUrl: string,
     res?: any,
+    eventsByCategories?: any[] | null,
 }
 
 const authStore = create(persist((set) => ({
@@ -19,8 +20,9 @@ const authStore = create(persist((set) => ({
     isGoogleRegistered: false,
     profilePictureUrl: '',
     res: '',
+    eventsByCategories: null,
 
-    setRes: (res: any) => set({res}),
+    setEvents: ({eventsByCategories}: Pick<IAuthStore, 'eventsByCategories'>) => set({eventsByCategories}),
     setAuth: ({role, username, token, isVerified, isGoogleRegistered, profilePictureUrl}: IAuthStore) => {
         if(profilePictureUrl) {
             set({ role, username, token, isVerified, isGoogleRegistered, profilePictureUrl })

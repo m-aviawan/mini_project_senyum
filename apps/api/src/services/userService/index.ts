@@ -42,6 +42,12 @@ export const updateProfileService = async({ username, phoneNumber, address, birt
 
         let updatedProfile, resData;
         if(role === 'CUSTOMER') {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id
+                }
+            })
+
             if(imagesUploaded) {
                 updatedProfile = await prisma.user.update({
                     where: {
